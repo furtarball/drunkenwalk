@@ -1,0 +1,6 @@
+// enemy hp as a bar instead of text
+// actual equipment
+// navigation by mouse
+// better walking mechanism: move queueing?
+// avoid map borders in generation
+// template functions that return different entities and arrays of pointers to those functions
