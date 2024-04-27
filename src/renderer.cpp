@@ -93,8 +93,8 @@ void Renderer::prepareAll(Map& map, vector<shared_ptr<Entity>> entitiesVctr, sha
   };
   SDL_RenderCopy(renderer, mapLayer, &camera.sdl, &targetRect);
   drawEntities(entitiesVctr);
-  SDL_RenderCopy(renderer, entityLayer, &camera.sdl, &targetRect);
   camera.followPlayer(player->position, mvmtX, mvmtY);
+  SDL_RenderCopy(renderer, entityLayer, &camera.sdl, &targetRect);
   drawOSD(player, seed);
 }
 
