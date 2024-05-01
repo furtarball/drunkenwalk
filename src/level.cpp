@@ -1,71 +1,22 @@
 #include "include/level.h"
 #include "include/entity.h"
+#include "include/mapgen.h"
 
-Level::Level(std::array<unsigned, 2>& a, std::shared_ptr<Player>& p) : seed(a.begin(), a.end()), rng(seed), player(p) {
-  generateMap();
-  //map.exportPGM("map.pgm");
-  populate();
-  
-}
-
-void Level::drunkenWalk() {
-  // array of pointers to member functions of class Position
-  Position (Position::*movements[])() = { &Position::up, &Position::down,
-				      &Position::left, &Position::right };
-  Position p = map.getStart();
-  for(size_t i = 0; i < STEPS; i++) {
-    map[p.getX()][p.getY()] = 1;
-    unsigned dir = rng() & 3;
-    p = (p.*(movements[dir]))();
+Level::Level(std::array<unsigned, 2>& a, std::shared_ptr<Player>& p) : seed(a.begin(), a.end()), player(p) {
+  switch(static_cast<MapType>(a[0] % static_cast<unsigned>(MAPTYPES))) {
+  case CAVE_REGULAR:
+    gen = std::unique_ptr<MapGenerator>(new DrunkenWalk(seed, map, entities, nDoors, nMobs, nItems));
+    break;
+  case CAVE_CORRIDOR:
+    gen = std::unique_ptr<MapGenerator>(new TargetedDrunkenWalk(seed, map, entities, nDoors, nMobs, nItems));
+    break;
+  default:
+    std::cerr << "No map generator created!" << std::endl;
   }
-}
-
-Position Level::randomizePosition() {
-  Position p;
-  bool withinBorders, occupied;
-  do { // picks random position until a valid and unoccupied one is found
-    p = Position((rng() % (Map::X - 3)) + 1, (rng() % (Map::Y - 3)) + 1);
-    withinBorders = (map[p.getX()][p.getY()] == 1);
-    occupied = false;
-    if(withinBorders)
-      for(auto&& i : entities) {
-	if(p == i->position) {
-	  occupied = true;
-	  break;
-	}
-      }
-  } while(!withinBorders || occupied);
-  return p;
-}
-
-void Level::populate() {
-  //pick random positions until an unoccupied one is found
-  //constuct an object on that position
-  //rinse and repeat
-  player->position = randomizePosition();
   entities.push_back(player);
-  nMobs = map.countWalkable() / ((rng() % 100) + 50);
-  for(size_t i = 0; i < nMobs; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Enemy(randomizePosition(), rng() % Enemy::types.list.size())));
-  nDoors = (nMobs / 4) + 1;
-  Door::count = 0;
-  for(size_t i = 0; i < nDoors; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Door(randomizePosition())));
-  nItems = nDoors;
-  for(size_t i = 0; i < nItems; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Item(randomizePosition(), rng() % Item::types.list.size())));
+  gen->generateMap();
+  gen->populate();
 }
-
-void Level::generateMap() {
-  map.zero();
-  drunkenWalk();
-  map.smoothen(1, 8);
-  map.smoothen(0, 8);
-  map.smoothen(0, 3);
-  map.drawWall();
-  map.zeroBorder();
-}
-
 bool Level::collision(const Position p) {
   if(map[p] != 1)
     return true;

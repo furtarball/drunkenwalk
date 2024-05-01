@@ -23,11 +23,13 @@ public:
   Position left();
   Position right();
   int neighbors(const Map&, const char) const;
+  friend std::ostream& operator<<(std::ostream& o, const Position& p)
+  { return o << '(' << p.getX() << ", " << p.getY() << ')'; }
 };
 
 class Map {
 public:
-  static const unsigned X = 128, Y = 128;
+  static const unsigned X = 64, Y = 64;
 private:
   std::array<std::array<char, Y>, X> cells, tmp;
   const Position start;

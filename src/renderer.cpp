@@ -15,7 +15,7 @@ using namespace std;
 
 #define PRERR(instruction) if((instruction) == nullptr) cerr << "Error: " << #instruction << endl;
 
-Renderer::Renderer() : fade(&Animation::square, 255, 0, 60), fps(60), windowX(640), windowY(400), camera(windowX, windowY) {
+Renderer::Renderer() : windowX(640), windowY(400), fade(&Animation::square, 255, 0, 60), camera(windowX, windowY), fps(60) {
   if(SDL_Init(SDL_INIT_VIDEO) != 0)
     cerr << "SDL_Init error" << endl;
   //PRERR(window = SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowX * spriteX * scale, windowY * spriteY * scale, 0));
@@ -88,8 +88,8 @@ void Renderer::prepareAll(Map& map, vector<shared_ptr<Entity>> entitiesVctr, sha
   SDL_Rect targetRect = {
     0,
     0,
-    camera.sdl.w * scale,
-    camera.sdl.h * scale
+    camera.sdl.w * static_cast<int>(scale),
+    camera.sdl.h * static_cast<int>(scale)
   };
   SDL_RenderCopy(renderer, mapLayer, &camera.sdl, &targetRect);
   drawEntities(entitiesVctr);

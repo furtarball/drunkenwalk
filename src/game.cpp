@@ -71,17 +71,19 @@ void Game::handleKbdEvents(const Uint8* kbd, SDL_Event& e) {
 
 void Game::death(Screen& s) {
   SDL_Event e;
-  renderer.clear();
-  SDL_Rect dst = { spriteX * windowX, spriteY * windowY, 0, 0 };
-  renderer.print("DEAD", Renderer::BOLD64, dst, 'c', 'c');
-  renderer.present();
-  do
-    SDL_WaitEvent(&e);
-  while(e.type != SDL_QUIT);
+  do {
+    SDL_PollEvent(&e);
+    SDL_GetWindowSize(renderer.window, &renderer.windowX, &renderer.windowY);
+    renderer.clear();
+    SDL_Rect dst = { renderer.windowX / 2, renderer.windowY / 2, 0, 0 };
+    renderer.print("DEAD", Renderer::BOLD64, dst, 'c', 'c');
+    renderer.present();
+  } while(e.type != SDL_QUIT);
   s = QUIT;
 }
 
 void Game::lvl(Screen& s) {
+  // 0. random seed value, 1. door number, 2. map type
   static array<unsigned, 2> seed = { 0xf4bc0d54, 5 };
   SDL_Event e;
   if(level)
@@ -106,15 +108,15 @@ void Game::lvl(Screen& s) {
     renderer.present();
     
     if(!door) {
-	for(size_t i = level->nMobs + 1; i < level->nMobs + level->nDoors + 1; i++) {
-	  if(player->position == level->entities[i]->position) {
-	    shared_ptr<Door> doorPtr = dynamic_pointer_cast<Door>(level->entities[i]);
-	    seed[1] = doorPtr->id;
-	    door = true;
-	    renderer.fade = Animation(&Animation::linear, 0, 255, renderer.fps.fps / 2);
-	    break;
-	  }
+      for(auto i = level->entities.begin() + 1; i < level->entities.begin() + level->nDoors + 1; i++) {
+	if(player->position == (*i)->position) {
+	  shared_ptr<Door> doorPtr = dynamic_pointer_cast<Door>(*i);
+	  seed[1] = doorPtr->id;
+	  door = true;
+	  renderer.fade = Animation(&Animation::linear, 0, 255, renderer.fps.fps / 2);
+	  break;
 	}
+      }
     }
     // if player has stepped through door and fadeout is complete
     else if(renderer.fade.funcType == nullptr)

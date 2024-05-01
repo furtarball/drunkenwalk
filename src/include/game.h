@@ -13,7 +13,6 @@
 #include "entity.h"
 
 const unsigned spriteX = 16, spriteY = 24;
-const unsigned windowX = 640, windowY = 320;
 const double scale = 2.0;
 
 struct Animation {
@@ -89,12 +88,13 @@ struct Camera {
     sdl.y += mvmtY.currentValue;
     if(sdl.x < static_cast<int>(spriteX))
       sdl.x = spriteX;
-    else if((sdl.x + sdl.w) > static_cast<int>((Map::X - 1) * spriteX))
-      sdl.x = (Map::X - 1) * spriteX - windowX;
+    else if((sdl.x + sdl.w) > static_cast<int>((Map::X - 1) * spriteX)) {
+      sdl.x = (Map::X - 1) * spriteX - sdl.w;
+    }
     if(sdl.y < static_cast<int>(spriteY))
       sdl.y = spriteY;
-    else if((sdl.y + sdl.w) > static_cast<int>((Map::Y - 1) * spriteY))
-      sdl.y = (Map::Y - 1) * spriteY - windowY;
+    else if((sdl.y + sdl.h) > static_cast<int>((Map::Y - 1) * spriteY))
+      sdl.y = (Map::Y - 1) * spriteY - sdl.h;
   }
   Camera(int& x, int& y) : windowX(x), windowY(y) {}
 };

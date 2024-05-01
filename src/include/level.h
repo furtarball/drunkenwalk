@@ -9,6 +9,7 @@
 #include <cmath>
 #include "map.h"
 #include "entity.h"
+#include "mapgen.h"
 
 class Level {
 public:
@@ -16,14 +17,15 @@ public:
   std::vector<std::shared_ptr<Entity>> entities;
   size_t nMobs, nDoors, nItems;
   std::seed_seq seed;
-  std::mt19937 rng;
   std::shared_ptr<Player>& player;
-  static const unsigned STEPS = 10000;
+  enum MapType { CAVE_REGULAR, CAVE_CORRIDOR, MAPTYPES };
+  std::unique_ptr<MapGenerator> gen;
   Level(std::array<unsigned, 2>&, std::shared_ptr<Player>&);
+  void placeDoors();
   void populate();
-  Position randomizePosition();
   void drunkenWalk();
   void generateMap();
+  
   bool collision(const Position);
   void grab();
   void fight();
