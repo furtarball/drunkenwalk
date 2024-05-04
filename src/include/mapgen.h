@@ -21,7 +21,7 @@ public:
     : rng(s), map(m), entities(e), doors(d), mobs(en), items(i) {}
   virtual void generateMap() = 0;
   virtual void populate() = 0;
-  virtual ~MapGenerator() {}
+  virtual ~MapGenerator() = default;
 };
 
 class TargetedDrunkenWalk : public MapGenerator {

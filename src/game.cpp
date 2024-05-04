@@ -3,6 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 #include "include/game.h"
 #include "include/map.h"
+#include "include/renderer.h"
 #include <array>
 #include <iostream>
 #include <vector>

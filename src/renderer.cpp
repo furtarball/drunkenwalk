@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include "include/game.h"
+#include "include/renderer.h"
 #include "include/map.h"
 #include <array>
 #include <iostream>
@@ -98,6 +98,11 @@ void Renderer::prepareAll(Map& map, vector<shared_ptr<Entity>> entitiesVctr, sha
   drawOSD(player, seed);
 }
 
+void Renderer::applyFade() {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, fade());
+  SDL_RenderFillRect(renderer, NULL);
+}
+
 Renderer::~Renderer() {
   for(auto&& i : fonts)
     TTF_CloseFont(i);
@@ -109,4 +114,54 @@ Renderer::~Renderer() {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+}
+
+unsigned Animation::operator()() {
+  if(funcType == nullptr)
+    return finalValue;
+  currentValue = (this->*(this->funcType))();
+  currentFrame++;
+  if(currentValue == finalValue)
+    funcType = nullptr;
+  return currentValue;
+}
+
+void FrameRate::measure() {
+  static Uint64 prevTicks = ticks;
+  static unsigned frames = 0;
+  if(ticks - prevTicks >= 1000) {
+    fps = frames;
+    frames = 0;
+    prevTicks = ticks;
+  }
+  frames++;
+}
+
+bool Camera::visible(Position p) {
+  if((((p.getX() + 1) * spriteX) < static_cast<unsigned>(sdl.x)) ||
+     (((p.getY() + 1) * spriteY) < static_cast<unsigned>(sdl.y)) ||
+     (((p.getX() - 1) * spriteX) > static_cast<unsigned>(sdl.x + sdl.w)) ||
+     (((p.getY() - 1) * spriteY) > static_cast<unsigned>(sdl.y + sdl.h)))
+    return false;
+  return true;
+}
+
+void Camera::followPlayer(Position& pos, Animation& mvmtX, Animation& mvmtY) {
+  sdl = {
+    static_cast<int>(pos.getX() * spriteX - (windowX / (scale * 2))),
+    static_cast<int>(pos.getY() * spriteY - (windowY / (scale * 2))),
+    static_cast<int>(ceil(windowX / scale)),
+    static_cast<int>(ceil(windowY / scale))
+  };
+  sdl.x += mvmtX.currentValue;
+  sdl.y += mvmtY.currentValue;
+  if(sdl.x < static_cast<int>(spriteX))
+    sdl.x = spriteX;
+  else if((sdl.x + sdl.w) > static_cast<int>((Map::X - 1) * spriteX)) {
+    sdl.x = (Map::X - 1) * spriteX - sdl.w;
+  }
+  if(sdl.y < static_cast<int>(spriteY))
+    sdl.y = spriteY;
+  else if((sdl.y + sdl.h) > static_cast<int>((Map::Y - 1) * spriteY))
+    sdl.y = (Map::Y - 1) * spriteY - sdl.h;
 }
