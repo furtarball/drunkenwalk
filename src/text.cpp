@@ -54,11 +54,6 @@ void Renderer::drawOSD(shared_ptr<Player> player, array<unsigned, 2>& seed) {
   text << "Position: (" << player->position.getX() << "; " << player->position.getY() << ')' << endl;
   text << "Map seed: {" << hex << seed[0] << dec << "; " << seed[1] << '}' << endl << endl;
   text << "HP: " << player->hp << '/' << player->maxHp << endl;
-  text << "Attack: " << player->attack << endl;
-  text << "Defense: " << player->defense << endl << endl;
-  text << "Bag:" << endl;
-  for(auto&& i : player->bag)
-    text << i->name << endl;
   SDL_Rect dst = { 0, 0, 0, 0 };
   print(text.str(), REGULAR16, dst, 't', 'l');
 }

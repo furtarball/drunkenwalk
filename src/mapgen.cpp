@@ -1,3 +1,4 @@
+#include "include/level.h"
 #include "include/mapgen.h"
 #include <functional>
 #include <vector>
@@ -31,13 +32,13 @@ void TargetedDrunkenWalk::generateMap() {
   map.zeroBorder();
 }
 void TargetedDrunkenWalk::populate() {
-  entities[0]->position = randomPos();
-  mobs = map.countWalkable() / ((rng() % 100) + 50);
+  (*(entities.player()))->position = randomPos();
+  size_t mobs = map.countWalkable() / ((rng() % 100) + 50);
   for(size_t i = 0; i < mobs; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Enemy(randomPos(), rng() % Enemy::types.list.size())));
-  items = mobs;
+    entities.push_back(new Enemy(randomPos(), rng() % Enemy::types.list.size()));
+  size_t items = mobs;
   for(size_t i = 0; i < items; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Item(randomPos(), rng() % Item::types.list.size())));
+    entities.push_back(new Item(randomPos(), rng() % Item::types.list.size()));
 }
 Position TargetedDrunkenWalk::randomDoorPos() {
   Position p;
@@ -62,10 +63,10 @@ Position TargetedDrunkenWalk::randomDoorPos() {
 }
 
 void TargetedDrunkenWalk::placeDoors() {
-  doors = (rng() % 4) + 1;
+  size_t doors = (rng() % 4) + 1;
   Door::count = 0;
   for(size_t i = 0; i < doors; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Door(randomDoorPos())));
+    entities.push_back(new Door(randomDoorPos()));
 }
 
 std::array<double, 4> TargetedDrunkenWalk::distribution(Position& s, Position& f) {
@@ -111,10 +112,10 @@ unsigned TargetedDrunkenWalk::choose(std::mt19937& rng, std::array<double, 4>& p
 void TargetedDrunkenWalk::drunkenWalk() {
   Position (Position::*movements[])() = { &Position::up, &Position::down,
 					  &Position::left, &Position::right };
-  for(size_t i = 0; i < doors; i++) {
+  for(auto i = entities.door0(); i < entities.door_end(); i++) {
     Position p = map.getStart(); // TODO why does Map have a start pos attribute?
     map[p.getX()][p.getY()] = 1;
-    Position finish = entities[i + 1]->position;
+    Position finish = (*i)->position;
     while(p != finish) {
       std::array<double, 4> probability = distribution(p, finish);
       unsigned dir = choose(rng, probability);
@@ -135,17 +136,17 @@ void DrunkenWalk::generateMap() {
 }
 
 void DrunkenWalk::populate() {
-  doors = (rng() % 4) + 1;
+  size_t doors = (rng() % 4) + 1;
   Door::count = 0;
   for(size_t i = 0; i < doors; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Door(randomPos())));
-  entities[0]->position = randomPos();
-  mobs = map.countWalkable() / ((rng() % 100) + 50);
+    entities.push_back(new Door(randomPos()));
+  (*(entities.player()))->position = randomPos();
+  size_t mobs = map.countWalkable() / ((rng() % 100) + 50);
   for(size_t i = 0; i < mobs; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Enemy(randomPos(), rng() % Enemy::types.list.size())));
-  items = mobs;
+    entities.push_back(new Enemy(randomPos(), rng() % Enemy::types.list.size()));
+  size_t items = mobs;
   for(size_t i = 0; i < items; i++)
-    entities.push_back(std::shared_ptr<Entity>(new Item(randomPos(), rng() % Item::types.list.size())));
+    entities.push_back(new Item(randomPos(), rng() % Item::types.list.size()));
 }
 
 void DrunkenWalk::drunkenWalk() {

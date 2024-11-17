@@ -15,7 +15,7 @@ using namespace std;
 
 #define PRERR(instruction) if((instruction) == nullptr) cerr << "Error: " << #instruction << endl;
 
-Renderer::Renderer() : windowX(640), windowY(400), fade(&Animation::square, 255, 0, 60), camera(windowX, windowY), fps(60) {
+Renderer::Renderer() : windowX(1024), windowY(768), fade(&Animation::square, 255, 0, 60), camera(windowX, windowY), fps(60) {
   if(SDL_Init(SDL_INIT_VIDEO) != 0)
     cerr << "SDL_Init error" << endl;
   //PRERR(window = SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowX * spriteX * scale, windowY * spriteY * scale, 0));
@@ -53,9 +53,9 @@ void Renderer::renderMapLayer(Map& map) {
   SDL_SetRenderTarget(renderer, NULL);
 }
 
-void Renderer::drawEntities(vector<shared_ptr<Entity>> evctr) {
+void Renderer::drawEntities(EntitiesArray& earr) {
   static Uint64 prevTicks = fps.ticks;
-  static unsigned frame = 0;
+  static int frame = 0;
   if(fps.ticks >= prevTicks + 1000) {
     frame++;
     prevTicks = fps.ticks;
@@ -63,17 +63,12 @@ void Renderer::drawEntities(vector<shared_ptr<Entity>> evctr) {
 
   SDL_SetRenderTarget(renderer, entityLayer);
   SDL_RenderClear(renderer);
-  for(int i = evctr.size() - 1; i >= 0; i--) {
-    unsigned x = evctr[i]->position.getX(), y = evctr[i]->position.getY();
-    if(camera.visible(evctr[i]->position)) {
-      SDL_Rect offset = { static_cast<int>(evctr[i]->offset * spriteX), static_cast<int>((frame % evctr[i]->frames) * spriteY), spriteX, spriteY };
-      SDL_Rect pos = {
-	static_cast<int>(x * spriteX),
-	static_cast<int>(y * spriteY),
-	spriteX,
-	spriteY
-      };
-      if(i == 0) {
+  for(auto i = earr.end() - 1; i >= earr.begin(); i--) {
+    int x = (*i)->position.getX(), y = (*i)->position.getY();
+    if(camera.visible((*i)->position)) {
+      SDL_Rect offset = { (*i)->offset * spriteX, (frame % (*i)->frames) * spriteY, spriteX, spriteY };
+      SDL_Rect pos = { x * spriteX, y * spriteY, spriteX, spriteY };
+      if(i == earr.player()) {
 	pos.x += mvmtX();
 	pos.y += mvmtY();
       }
@@ -83,16 +78,18 @@ void Renderer::drawEntities(vector<shared_ptr<Entity>> evctr) {
   SDL_SetRenderTarget(renderer, NULL);
 }
 
-void Renderer::prepareAll(Map& map, vector<shared_ptr<Entity>> entitiesVctr, shared_ptr<Player> player, array<unsigned, 2>& seed) {
+void Renderer::prepareAll(Map& map,
+			  EntitiesArray& earr,
+			  shared_ptr<Player> player,
+			  array<unsigned, 2>& seed) {
   renderMapLayer(map);
-  SDL_Rect targetRect = {
-    0,
-    0,
-    camera.sdl.w * static_cast<int>(scale),
-    camera.sdl.h * static_cast<int>(scale)
-  };
+  SDL_Rect targetRect;
+  targetRect.w = static_cast<int>(ceil(camera.sdl.w * scale));
+  targetRect.h = static_cast<int>(ceil(camera.sdl.h * scale));
+  targetRect.x = static_cast<int>(ceil((windowX - targetRect.w) / 2.0));
+  targetRect.y = static_cast<int>(ceil((windowY - targetRect.h) / 2.0));
   SDL_RenderCopy(renderer, mapLayer, &camera.sdl, &targetRect);
-  drawEntities(entitiesVctr);
+  drawEntities(earr);
   camera.followPlayer(player->position, mvmtX, mvmtY);
   SDL_RenderCopy(renderer, entityLayer, &camera.sdl, &targetRect);
   drawOSD(player, seed);
@@ -129,6 +126,12 @@ unsigned Animation::operator()() {
 void FrameRate::measure() {
   static Uint64 prevTicks = ticks;
   static unsigned frames = 0;
+  if(skip) {
+    prevTicks = ticks;
+    frames = 0;
+    skip = false;
+    return;
+  }
   if(ticks - prevTicks >= 1000) {
     fps = frames;
     frames = 0;
@@ -138,10 +141,10 @@ void FrameRate::measure() {
 }
 
 bool Camera::visible(Position p) {
-  if((((p.getX() + 1) * spriteX) < static_cast<unsigned>(sdl.x)) ||
-     (((p.getY() + 1) * spriteY) < static_cast<unsigned>(sdl.y)) ||
-     (((p.getX() - 1) * spriteX) > static_cast<unsigned>(sdl.x + sdl.w)) ||
-     (((p.getY() - 1) * spriteY) > static_cast<unsigned>(sdl.y + sdl.h)))
+  if((((p.getX() + 1) * spriteX) < sdl.x) ||
+     (((p.getY() + 1) * spriteY) < sdl.y) ||
+     (((p.getX() - 1) * spriteX) > (sdl.x + sdl.w)) ||
+     (((p.getY() - 1) * spriteY) > (sdl.y + sdl.h)))
     return false;
   return true;
 }
@@ -155,13 +158,26 @@ void Camera::followPlayer(Position& pos, Animation& mvmtX, Animation& mvmtY) {
   };
   sdl.x += mvmtX.currentValue;
   sdl.y += mvmtY.currentValue;
-  if(sdl.x < static_cast<int>(spriteX))
-    sdl.x = spriteX;
-  else if((sdl.x + sdl.w) > static_cast<int>((Map::X - 1) * spriteX)) {
-    sdl.x = (Map::X - 1) * spriteX - sdl.w;
+  // check if the map is narrower (shorter) than the viewport
+  // if not, check if the above has tried to move it outside the map
+  if(((Map::X - 1) * spriteX) < sdl.w) {
+    sdl.w = ((Map::X - 1) * spriteX);
+    sdl.x = 0;
   }
-  if(sdl.y < static_cast<int>(spriteY))
-    sdl.y = spriteY;
-  else if((sdl.y + sdl.h) > static_cast<int>((Map::Y - 1) * spriteY))
-    sdl.y = (Map::Y - 1) * spriteY - sdl.h;
+  else {
+    if(sdl.x < spriteX)
+      sdl.x = spriteX;
+    else if((sdl.x + sdl.w) > ((Map::X - 1) * spriteX))
+      sdl.x = (Map::X - 1) * spriteX - sdl.w;
+  }
+  if(((Map::Y - 1) * spriteY) < sdl.h) {
+    sdl.h = ((Map::Y - 1) * spriteY);
+    sdl.y = 0;
+  }
+  else {
+    if(sdl.y < spriteY)
+      sdl.y = spriteY;
+    else if((sdl.y + sdl.h) > ((Map::Y - 1) * spriteY))
+      sdl.y = (Map::Y - 1) * spriteY - sdl.h;
+  }
 }

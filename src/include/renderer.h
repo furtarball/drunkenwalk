@@ -4,8 +4,9 @@
 #include <vector>
 #include <memory>
 #include "entity.h"
+#include "level.h"
 
-const unsigned spriteX = 16, spriteY = 24;
+const int spriteX = 16, spriteY = 24;
 const double scale = 2.0;
 
 class Animation {
@@ -31,9 +32,13 @@ public:
 struct FrameRate {
   unsigned fps;
   Uint64 ticks;
-  FrameRate(unsigned f) : fps(f) {}
+  bool skip;
+  FrameRate(unsigned f) : fps(f), skip(false) {}
   void updateTicks() { ticks = SDL_GetTicks64(); }
-  void measure();  
+  void measure();
+  void set_skip() { // skip one measurement
+    skip = true;
+  }
   void operator()() {
     updateTicks();
     measure();
@@ -65,10 +70,10 @@ public:
   Renderer();
   ~Renderer();
   void renderMapLayer(Map&);
-  void drawEntities(std::vector<std::shared_ptr<Entity>>);
+  void drawEntities(EntitiesArray&);
   void print(const std::string&, Font, SDL_Rect&, char, char);
   void drawOSD(std::shared_ptr<Player>, std::array<unsigned, 2>&);
-  void prepareAll(Map&, std::vector<std::shared_ptr<Entity>>, std::shared_ptr<Player>, std::array<unsigned, 2>&);
+  void prepareAll(Map&, EntitiesArray&, std::shared_ptr<Player>, std::array<unsigned, 2>&);
   void applyFade();
   void present() { SDL_RenderPresent(renderer); }
   void clear() { SDL_RenderClear(renderer); };

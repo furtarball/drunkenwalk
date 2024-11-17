@@ -4,21 +4,21 @@
 #include <memory>
 #include <random>
 #include <array>
+#include "level.h"
 #include "map.h"
 #include "entity.h"
+
+class EntitiesArray;
 
 class MapGenerator {
 protected:
   std::mt19937 rng;
   Map& map;
-  std::vector<std::shared_ptr<Entity>>& entities;
-  size_t& doors;
-  size_t& mobs;
-  size_t& items;
+  EntitiesArray& entities;
   Position randomPos();
 public:
-  MapGenerator(std::seed_seq& s, Map& m, std::vector<std::shared_ptr<Entity>>& e, size_t& d, size_t& en, size_t& i)
-    : rng(s), map(m), entities(e), doors(d), mobs(en), items(i) {}
+  MapGenerator(std::seed_seq& s, Map& m, EntitiesArray& e)
+    : rng(s), map(m), entities(e) {}
   virtual void generateMap() = 0;
   virtual void populate() = 0;
   virtual ~MapGenerator() = default;
@@ -26,7 +26,8 @@ public:
 
 class TargetedDrunkenWalk : public MapGenerator {
 public:
-  TargetedDrunkenWalk(std::seed_seq& s, Map& m, std::vector<std::shared_ptr<Entity>>& e, size_t& d, size_t& en, size_t& i) : MapGenerator(s, m, e, d, en, i) {}
+  TargetedDrunkenWalk(std::seed_seq& s, Map& m, EntitiesArray& e)
+    : MapGenerator(s, m, e) {}
   void generateMap();
   void populate();
   Position randomDoorPos();
@@ -37,9 +38,10 @@ public:
 };
 
 class DrunkenWalk : public MapGenerator {
-  static const unsigned STEPS = 10000;
+  static const unsigned STEPS = 1024;
 public:
-  DrunkenWalk(std::seed_seq& s, Map& m, std::vector<std::shared_ptr<Entity>>& e, size_t& d, size_t& en, size_t& i) : MapGenerator(s, m, e, d, en, i) {}
+  DrunkenWalk(std::seed_seq& s, Map& m, EntitiesArray& e)
+    : MapGenerator(s, m, e) {}
   void generateMap();
   void populate();
   void drunkenWalk();

@@ -17,10 +17,14 @@ class Game {
   std::unique_ptr<Level> level;
   std::shared_ptr<Player> player;
   Renderer renderer;
-  enum Screen { QUIT, LEVEL, DEATH, SCREENS };
-  void lvl(Screen&);
-  void death(Screen&);
-  void handleKbdEvents(const Uint8*, SDL_Event&);
+  bool move_up();
+  bool move_down();
+  bool move_left();
+  bool move_right();
+  int lvl(); // returns 0 to generate another level, -1 to exit
+  void inventory();
+  void death();
+  bool handle_movement(const Uint8*, SDL_Event&);
 public:
   Game() : player(new Player) {}
   void run();

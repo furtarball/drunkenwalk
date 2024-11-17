@@ -7,7 +7,7 @@
 class Map;
 
 class Position {
-  unsigned x, y;
+  int x, y;
 public:
   Position(const int p = 0, const int q = 0) : x(p), y(q) {}
   bool operator==(const Position b) const {
@@ -16,8 +16,8 @@ public:
   bool operator!=(const Position b) const {
     return !operator==(b);
   }
-  unsigned getX() const { return x; }
-  unsigned getY() const { return y; }
+  int getX() const { return x; }
+  int getY() const { return y; }
   Position up();
   Position down();
   Position left();
@@ -29,7 +29,7 @@ public:
 
 class Map {
 public:
-  static const unsigned X = 64, Y = 64;
+  static const int X = 32, Y = 32;
 private:
   std::array<std::array<char, Y>, X> cells, tmp;
   const Position start;
