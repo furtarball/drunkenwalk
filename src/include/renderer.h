@@ -77,8 +77,11 @@ class Wrapped : public std::unique_ptr<T, void (*)(T*)> {};
 		static void destroy(type* p) { deleter(p); }                           \
                                                                                \
 		public:                                                                \
-		Wrapped(type* p = nullptr)                                             \
-			: std::unique_ptr<type, void (*)(type*)>{p, destroy} {}            \
+		Wrapped(type* p)                                                       \
+			: std::unique_ptr<type, void (*)(type*)>{p, destroy} {             \
+			if (p == nullptr)                                                  \
+				throw std::runtime_error{SDL_GetError()};                      \
+		}                                                                      \
 		operator type*() { return get(); }                                     \
 	};
 WRAPPED(SDL_Window, SDL_DestroyWindow);
@@ -107,7 +110,8 @@ class Renderer {
 	Wrapped<SDL_Renderer> renderer;
 	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities;
 	std::array<Wrapped<TTF_Font>, 3> fonts;
-	Wrapped<SDL_Texture> textTexture(const std::string& t, Font f, SDL_Rect& dim);
+	Wrapped<SDL_Texture> textTexture(const std::string& t, Font f,
+									 SDL_Rect& dim);
 
 	public:
 	FrameRate fps;

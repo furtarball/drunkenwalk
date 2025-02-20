@@ -11,13 +11,6 @@
 #include <sstream>
 #include <typeinfo>
 #include <vector>
-using namespace std;
-
-auto ptrFit(auto ptr) {
-	if (ptr == nullptr)
-		throw std::runtime_error{SDL_GetError()};
-	return ptr;
-}
 
 Renderer::SDLGuard::SDLGuard() {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -40,22 +33,22 @@ Renderer::SDLGuard::~SDLGuard() {
 
 Renderer::Renderer()
 	: windowX(1024), windowY(768),
-	  window{ptrFit(SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED,
+	  window{SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED,
 									 SDL_WINDOWPOS_UNDEFINED, windowX, windowY,
-									 SDL_WINDOW_RESIZABLE))},
-	  renderer{ptrFit(SDL_CreateRenderer(
-		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))},
-	  mapLayer{ptrFit(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
+									 SDL_WINDOW_RESIZABLE)},
+	  renderer{SDL_CreateRenderer(
+		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)},
+	  mapLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
 										SDL_TEXTUREACCESS_TARGET,
-										Map::X * spriteX, Map::Y * spriteY))},
-	  entityLayer{ptrFit(SDL_CreateTexture(
+										Map::X * spriteX, Map::Y * spriteY)},
+	  entityLayer{SDL_CreateTexture(
 		  renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		  Map::X * spriteX, Map::Y * spriteY))},
-	  environment{ptrFit(IMG_LoadTexture(renderer, "assets/environment.png"))},
-	  entities{ptrFit(IMG_LoadTexture(renderer, "assets/entities.png"))},
-	  fonts{ptrFit(TTF_OpenFont("assets/Terminus.ttf", 16)),
-			ptrFit(TTF_OpenFont("assets/Terminus.ttf", 32)),
-			ptrFit(TTF_OpenFont("assets/Terminus-Bold.ttf", 64))},
+		  Map::X * spriteX, Map::Y * spriteY)},
+	  environment{IMG_LoadTexture(renderer, "assets/environment.png")},
+	  entities{IMG_LoadTexture(renderer, "assets/entities.png")},
+	  fonts{TTF_OpenFont("assets/Terminus.ttf", 16),
+			TTF_OpenFont("assets/Terminus.ttf", 32),
+			TTF_OpenFont("assets/Terminus-Bold.ttf", 64)},
 	  fps(60), fade(&Animation::square, 255, 0, fps.fps),
 	  camera(windowX, windowY) {
 
@@ -108,7 +101,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 }
 
 void Renderer::prepareAll(Map& map, EntitiesArray& earr,
-						  shared_ptr<Player> player, array<unsigned, 2>& seed) {
+						  std::shared_ptr<Player> player, std::array<unsigned, 2>& seed) {
 	renderMapLayer(map);
 	SDL_Rect targetRect;
 	targetRect.w = static_cast<int>(ceil(camera.sdl.w * scale));
