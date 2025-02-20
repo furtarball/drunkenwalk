@@ -83,6 +83,7 @@ class Wrapped : public std::unique_ptr<T, void (*)(T*)> {};
 	};
 WRAPPED(SDL_Window, SDL_DestroyWindow);
 WRAPPED(SDL_Renderer, SDL_DestroyRenderer);
+WRAPPED(SDL_Surface, SDL_FreeSurface);
 WRAPPED(SDL_Texture, SDL_DestroyTexture);
 WRAPPED(TTF_Font, TTF_CloseFont);
 
@@ -98,6 +99,7 @@ class Renderer {
 	SDLGuard sdlguard;
 
 	public:
+	enum Font { REGULAR16, REGULAR32, BOLD64, FONTS };
 	int windowX, windowY;
 	Wrapped<SDL_Window> window;
 
@@ -105,13 +107,12 @@ class Renderer {
 	Wrapped<SDL_Renderer> renderer;
 	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities;
 	std::array<Wrapped<TTF_Font>, 3> fonts;
-	void alignment(SDL_Rect&, char, char);
+	Wrapped<SDL_Texture> textTexture(const std::string& t, Font f, SDL_Rect& dim);
 
 	public:
 	FrameRate fps;
 	Animation fade, mvmtX, mvmtY;
 	Camera camera;
-	enum Font { REGULAR16, REGULAR32, BOLD64, FONTS };
 	Renderer();
 	void renderMapLayer(Map&);
 	void drawEntities(EntitiesArray&);
@@ -122,9 +123,6 @@ class Renderer {
 	void applyFade();
 	void present() { SDL_RenderPresent(renderer); }
 	void clear() { SDL_RenderClear(renderer); };
-
-	private:
-	SDL_Texture* textTexture(const std::string&, Font, SDL_Rect&);
 };
 
 #endif
