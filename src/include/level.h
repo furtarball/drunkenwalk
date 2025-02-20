@@ -36,15 +36,17 @@ class EntitiesArray : private std::vector<std::shared_ptr<Entity>> {
   iterator erase(iterator);
 };
 
+using Seed = std::array<unsigned, 2>;
+
 class Level {
 public:
   Map map;
   EntitiesArray entities;
   std::seed_seq seed;
-  std::shared_ptr<Player>& player;
+  std::shared_ptr<Player> player;
   enum MapType { CAVE_REGULAR, CAVE_CORRIDOR, MAPTYPES };
   std::unique_ptr<MapGenerator> gen;
-  Level(std::array<unsigned, 2>&, std::shared_ptr<Player>&);
+  Level(Seed&, std::shared_ptr<Player>&);
   void placeDoors();
   void populate();
   void drunkenWalk();

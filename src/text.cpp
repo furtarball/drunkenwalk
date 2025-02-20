@@ -49,12 +49,13 @@ void Renderer::print(const std::string& t, Font f, SDL_Rect& dst, char vAlign,
 	SDL_RenderCopy(renderer, tt, NULL, &dst);
 }
 
-void Renderer::drawOSD(std::shared_ptr<Player> player, std::array<unsigned, 2>& seed) {
+void Renderer::drawOSD(std::shared_ptr<Player> player, Seed& seed) {
 	std::stringstream text;
 	text << fps.fps << " fps\n";
 	text << "Position: (" << player->position.getX() << "; "
 		 << player->position.getY() << ")\n";
-	text << "Map seed: {" << std::hex << seed[0] << std::dec << "; " << seed[1] << "}\n\n";
+	text << "Map seed: {" << std::hex << seed[0] << std::dec << "; " << seed[1]
+		 << "}\n\n";
 	text << "HP: " << player->hp << '/' << player->maxHp << std::endl;
 	SDL_Rect dst = {0, 0, 0, 0};
 	print(text.str(), REGULAR16, dst, 't', 'l');

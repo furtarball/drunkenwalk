@@ -101,7 +101,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 }
 
 void Renderer::prepareAll(Map& map, EntitiesArray& earr,
-						  std::shared_ptr<Player> player, std::array<unsigned, 2>& seed) {
+						  std::shared_ptr<Player> player, Seed& seed) {
 	renderMapLayer(map);
 	SDL_Rect targetRect;
 	targetRect.w = static_cast<int>(ceil(camera.sdl.w * scale));

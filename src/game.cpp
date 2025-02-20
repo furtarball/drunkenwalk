@@ -146,7 +146,7 @@ void Game::inventory() {
 
 int Game::lvl() {
   // 0. random seed value, 1. door number, 2. map type
-  static array<unsigned, 2> seed = { 0xf4bc0d54, 5 };
+  static Seed seed = { 0xf4bc0d54, 5 };
   SDL_Event e;
   if(level)
     level->seed.generate(seed.begin(), seed.begin() + 1);

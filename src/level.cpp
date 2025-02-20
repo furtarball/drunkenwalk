@@ -33,7 +33,7 @@ EntitiesArray::iterator EntitiesArray::erase(EntitiesArray::iterator pos) {
   return begin() + n;
 }
 
-Level::Level(std::array<unsigned, 2>& a, std::shared_ptr<Player>& p) : seed(a.begin(), a.end()), player(p) {
+Level::Level(Seed& a, std::shared_ptr<Player>& p) : seed(a.begin(), a.end()), player(p) {
   switch(static_cast<MapType>(a[0] % static_cast<unsigned>(MAPTYPES))) {
   case CAVE_REGULAR:
     gen = std::unique_ptr<MapGenerator>(new DrunkenWalk(seed, map, entities));
