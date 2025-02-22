@@ -74,11 +74,9 @@ class Wrapped : public std::unique_ptr<T, void (*)(T*)> {};
 #define WRAPPED(type, deleter)                                                 \
 	template <>                                                                \
 	class Wrapped<type> : public std::unique_ptr<type, void (*)(type*)> {      \
-		static void destroy(type* p) { deleter(p); }                           \
-                                                                               \
 		public:                                                                \
 		Wrapped(type* p)                                                       \
-			: std::unique_ptr<type, void (*)(type*)>{p, destroy} {             \
+			: std::unique_ptr<type, void (*)(type*)>{p, deleter} {             \
 			if (p == nullptr)                                                  \
 				throw std::runtime_error{SDL_GetError()};                      \
 		}                                                                      \
