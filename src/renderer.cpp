@@ -83,13 +83,15 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 
 	SDL_SetRenderTarget(renderer, entityLayer);
 	SDL_RenderClear(renderer);
+	// this order ensures player is always on top
 	for (auto i = earr.end() - 1; i >= earr.begin(); i--) {
 		int x = (*i)->position.getX(), y = (*i)->position.getY();
 		if (camera.visible((*i)->position)) {
 			const auto& s = (*i)->sprite;
-			SDL_Rect offset{s.pos_x, (frame % s.frames) * s.dim_y,
-							s.dim_x, s.dim_y};
-			SDL_Rect pos{x * spriteX, y * spriteY, s.dim_x, s.dim_y};
+			SDL_Rect offset{s.pos_x, (frame % s.frames) * s.dim_y, s.dim_x,
+							s.dim_y};
+			SDL_Rect pos{((x * spriteX) + (spriteX / 2)) - (s.dim_x / 2),
+						 (y * spriteY) - (s.dim_y - spriteY), s.dim_x, s.dim_y};
 			if (i == earr.player()) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
