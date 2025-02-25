@@ -3,6 +3,8 @@
 #include <functional>
 #include <vector>
 #include <array>
+#include <memory>
+#include <fstream>
 #include "include/map.h"
 #include "include/entity.h"
 
@@ -34,11 +36,15 @@ void TargetedDrunkenWalk::generateMap() {
 void TargetedDrunkenWalk::populate() {
   (*(entities.player()))->position = randomPos();
   size_t mobs = map.countWalkable() / ((rng() % 100) + 50);
+  std::ifstream enemies_f{"assets/enemies.json"};
+	nlohmann::json enemyTypes = nlohmann::json::parse(enemies_f);
   for(size_t i = 0; i < mobs; i++)
-    entities.push_back(new Enemy(randomPos(), rng() % Enemy::types.list.size()));
+    entities.push_back(new Enemy(randomPos(), enemyTypes[rng() % enemyTypes.size()]));
   size_t items = mobs;
+  std::ifstream items_f{"assets/items.json"};
+	nlohmann::json itemTypes = nlohmann::json::parse(items_f);
   for(size_t i = 0; i < items; i++)
-    entities.push_back(new Item(randomPos(), rng() % Item::types.list.size()));
+    entities.push_back(new Item(randomPos(), itemTypes[rng() % itemTypes.size()]));
 }
 Position TargetedDrunkenWalk::randomDoorPos() {
   Position p;
@@ -142,11 +148,15 @@ void DrunkenWalk::populate() {
     entities.push_back(new Door(randomPos()));
   (*(entities.player()))->position = randomPos();
   size_t mobs = map.countWalkable() / ((rng() % 100) + 50);
+  std::ifstream enemies_f{"assets/enemies.json"};
+	nlohmann::json enemyTypes = nlohmann::json::parse(enemies_f);
   for(size_t i = 0; i < mobs; i++)
-    entities.push_back(new Enemy(randomPos(), rng() % Enemy::types.list.size()));
+    entities.push_back(new Enemy(randomPos(), enemyTypes[rng() % enemyTypes.size()]));
   size_t items = mobs;
+  std::ifstream items_f{"assets/items.json"};
+	nlohmann::json itemTypes = nlohmann::json::parse(items_f);
   for(size_t i = 0; i < items; i++)
-    entities.push_back(new Item(randomPos(), rng() % Item::types.list.size()));
+    entities.push_back(new Item(randomPos(), itemTypes[rng() % itemTypes.size()]));
 }
 
 void DrunkenWalk::drunkenWalk() {

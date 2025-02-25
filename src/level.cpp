@@ -52,7 +52,7 @@ bool Level::collision(const Position p) {
   if(map[p] != 1)
     return true;
   for(auto&& i : entities)
-    if((i->position == p) && i->collisionAllowed)
+    if((i->position == p) && i->collision)
       return true;
   return false;
 }

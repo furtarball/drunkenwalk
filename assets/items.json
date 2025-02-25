@@ -1,0 +1,42 @@
+[
+	{
+		"Name": "Health Potion",
+		"HP": 5,
+		"MaxHP": 0,
+		"Attack": 0,
+		"Defense": 0,
+		"Type": "Consumable"
+	},
+	{
+		"Name": "Strength Potion",
+		"HP": 5,
+		"MaxHP": 5,
+		"Attack": 2,
+		"Defense": 1,
+		"Type": "Consumable"
+	},
+	{
+		"Name": "Rusty Knife",
+		"HP": 0,
+		"MaxHP": 0,
+		"Attack": 3,
+		"Defense": 0,
+		"Type": "Weapon"
+	},
+	{
+		"Name": "Dagger",
+		"HP": 0,
+		"MaxHP": 0,
+		"Attack": 5,
+		"Defense": 0,
+		"Type": "Weapon"
+	},
+	{
+		"Name": "Leather Jacket",
+		"HP": 5,
+		"MaxHP": 0,
+		"Attack": 0,
+		"Defense": 0,
+		"Type": "Armor"
+	}
+]

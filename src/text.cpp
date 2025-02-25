@@ -56,7 +56,7 @@ void Renderer::drawOSD(std::shared_ptr<Player> player, Seed& seed) {
 		 << player->position.getY() << ")\n";
 	text << "Map seed: {" << std::hex << seed[0] << std::dec << "; " << seed[1]
 		 << "}\n\n";
-	text << "HP: " << player->hp << '/' << player->maxHp << std::endl;
+	text << "HP: " << player->hp << '/' << player->maxhp << std::endl;
 	SDL_Rect dst = {0, 0, 0, 0};
 	print(text.str(), REGULAR16, dst, 't', 'l');
 }

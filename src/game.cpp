@@ -98,7 +98,7 @@ void Game::inventory() {
     renderer.clear();
     {
       stringstream text;
-      text << "HP: " << player->hp << '/' << player->maxHp << endl;
+      text << "HP: " << player->hp << '/' << player->maxhp << endl;
       text << "Attack: " << player->attack << endl;
       text << "Defense: " << player->defense << endl << endl;
       SDL_Rect dst = { 0, 0, 0, 0 };
@@ -114,9 +114,9 @@ void Game::inventory() {
       if(e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
 	if(choice < player->bag.size()) {
 	  auto item = player->bag[choice];
-	  if((item->category == Item::WEAPON) ||
-	     (item->category == Item::ARMOR) ||
-	     (item->category == Item::CONSUMABLE)) {
+	  if((item->type == Item::WEAPON) ||
+	     (item->type == Item::ARMOR) ||
+	     (item->type == Item::CONSUMABLE)) {
 	    player->use(item);
 	    player->bag.erase(player->bag.begin() + choice);
 	  }

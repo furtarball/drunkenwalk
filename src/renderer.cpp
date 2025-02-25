@@ -34,16 +34,16 @@ Renderer::SDLGuard::~SDLGuard() {
 Renderer::Renderer()
 	: windowX(1024), windowY(768),
 	  window{SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED,
-									 SDL_WINDOWPOS_UNDEFINED, windowX, windowY,
-									 SDL_WINDOW_RESIZABLE)},
+							  SDL_WINDOWPOS_UNDEFINED, windowX, windowY,
+							  SDL_WINDOW_RESIZABLE)},
 	  renderer{SDL_CreateRenderer(
 		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)},
 	  mapLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
-										SDL_TEXTUREACCESS_TARGET,
-										Map::X * spriteX, Map::Y * spriteY)},
-	  entityLayer{SDL_CreateTexture(
-		  renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		  Map::X * spriteX, Map::Y * spriteY)},
+								 SDL_TEXTUREACCESS_TARGET, Map::X * spriteX,
+								 Map::Y * spriteY)},
+	  entityLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+									SDL_TEXTUREACCESS_TARGET, Map::X * spriteX,
+									Map::Y * spriteY)},
 	  environment{IMG_LoadTexture(renderer, "assets/environment.png")},
 	  entities{IMG_LoadTexture(renderer, "assets/entities.png")},
 	  fonts{TTF_OpenFont("assets/Terminus.ttf", 16),
@@ -86,10 +86,10 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 	for (auto i = earr.end() - 1; i >= earr.begin(); i--) {
 		int x = (*i)->position.getX(), y = (*i)->position.getY();
 		if (camera.visible((*i)->position)) {
-			SDL_Rect offset = {(*i)->offset * spriteX,
-							   (frame % (*i)->frames) * spriteY, spriteX,
-							   spriteY};
-			SDL_Rect pos = {x * spriteX, y * spriteY, spriteX, spriteY};
+			const auto& s = (*i)->sprite;
+			SDL_Rect offset{s.pos_x, (frame % s.frames) * s.dim_y,
+							s.dim_x, s.dim_y};
+			SDL_Rect pos{x * spriteX, y * spriteY, s.dim_x, s.dim_y};
 			if (i == earr.player()) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
