@@ -28,7 +28,7 @@ class Game {
 	bool handle_movement(const Uint8*, SDL_Event&);
 
 	public:
-	Game() : player(new Player), renderer{config} {}
+	Game() : config{"assets/config.json"}, player(new Player), renderer{config} {}
 	void run();
 };
 

@@ -19,7 +19,7 @@ using namespace std;
 Config::Config(const char* json_path) {
 	std::ifstream f{json_path};
 	nlohmann::json j{nlohmann::json::parse(f)};
-	j.get_to(*this);
+	j.at(0).get_to(*this);
 }
 
 void Game::run() {
