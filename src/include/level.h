@@ -46,7 +46,7 @@ public:
   std::shared_ptr<Player> player;
   enum MapType { CAVE_REGULAR, CAVE_CORRIDOR, MAPTYPES };
   std::unique_ptr<MapGenerator> gen;
-  Level(Seed&, std::shared_ptr<Player>&);
+  Level(size_t map_w, size_t map_h, Seed&, std::shared_ptr<Player>&);
   void placeDoors();
   void populate();
   void drunkenWalk();

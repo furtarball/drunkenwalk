@@ -12,7 +12,7 @@ Position MapGenerator::randomPos() {
   Position p;
   bool withinBorders, occupied;
   do { // picks random position until a valid and unoccupied one is found
-    p = Position((rng() % (Map::X - 3)) + 1, (rng() % (Map::Y - 3)) + 1);
+    p = Position((rng() % (map.width - 3)) + 1, (rng() % (map.height - 3)) + 1);
     withinBorders = (map[p.getX()][p.getY()] == 1);
     occupied = false;
     if(withinBorders)
@@ -50,10 +50,10 @@ Position TargetedDrunkenWalk::randomDoorPos() {
   Position p;
   bool occupied;
   std::array<std::function<Position()>, 4> pick = {
-    [&]() { return Position(1, (rng() % (Map::Y - 2)) + 1); },
-    [&]() { return Position((rng() % (Map::X - 2)) + 1, 1); },
-    [&]() { return Position(Map::X - 2, (rng() % (Map::Y - 2)) + 1); },
-    [&]() { return Position((rng() % (Map::X - 2)) + 1, Map::Y - 2); }
+    [&]() { return Position(1, (rng() % (map.height - 2)) + 1); },
+    [&]() { return Position((rng() % (map.width - 2)) + 1, 1); },
+    [&]() { return Position(map.width - 2, (rng() % (map.height - 2)) + 1); },
+    [&]() { return Position((rng() % (map.width - 2)) + 1, map.height - 2); }
   };
   do {
     p = pick[rng() % 4]();
@@ -116,7 +116,7 @@ unsigned TargetedDrunkenWalk::choose(std::mt19937& rng, std::array<double, 4>& p
 }
 
 void TargetedDrunkenWalk::drunkenWalk() {
-  Position (Position::*movements[])() = { &Position::up, &Position::down,
+  std::array movements{ &Position::up, &Position::down,
 					  &Position::left, &Position::right };
   for(auto i = entities.door0(); i < entities.door_end(); i++) {
     Position p = map.getStart(); // TODO why does Map have a start pos attribute?
@@ -125,7 +125,7 @@ void TargetedDrunkenWalk::drunkenWalk() {
     while(p != finish) {
       std::array<double, 4> probability = distribution(p, finish);
       unsigned dir = choose(rng, probability);
-      p = (p.*(movements[dir]))();
+      p = (p.*(movements[dir]))(map);
       map[p.getX()][p.getY()] = 1;
     }
   }
@@ -161,12 +161,12 @@ void DrunkenWalk::populate() {
 
 void DrunkenWalk::drunkenWalk() {
   // array of pointers to member functions of class Position
-  Position (Position::*movements[])() = { &Position::up, &Position::down,
+  std::array movements{ &Position::up, &Position::down,
 				      &Position::left, &Position::right };
   Position p = map.getStart();
   for(size_t i = 0; i < STEPS; i++) {
     map[p.getX()][p.getY()] = 1;
     unsigned dir = rng() & 3;
-    p = (p.*(movements[dir]))();
+    p = (p.*(movements[dir]))(map);
   }
 }

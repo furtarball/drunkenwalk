@@ -1,0 +1,18 @@
+{
+	"map_w": 32,
+	"map_h": 32,
+	"window_w": 1024,
+	"window_h": 768,
+	"assets_dir": "assets",
+	"environment": "environment.png",
+	"entities": "entities.png",
+	"tile_w": 16,
+	"tile_h": 24,
+	"scale": 2.0,
+	"font_regular_file": "Terminus.ttf",
+	"font_medium_file": "Terminus.ttf",
+	"font_big_file": "Terminus-Bold.ttf",
+	"font_regular_size": 16,
+	"font_medium_size": 32,
+	"font_big_size": 64
+}

@@ -1,5 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
+#include "config.h"
 #include "entity.h"
 #include "level.h"
 #include "map.h"
@@ -8,9 +9,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <memory>
 #include <vector>
-
-const int spriteX = 16, spriteY = 24;
-const double scale = 2.0;
 
 class Animation {
 	int initialValue;
@@ -59,13 +57,13 @@ struct FrameRate {
 };
 
 class Camera {
-	int &windowX, &windowY;
+	const Config& cfg;
 
 	public:
 	SDL_Rect sdl;
 	bool visible(Position p);
 	void followPlayer(Position&, Animation&, Animation&);
-	Camera(int& x, int& y) : windowX(x), windowY(y) {}
+	Camera(const Config& config) : cfg{config} {}
 };
 
 // Macro for instantiating std::unique_ptr with default deleters
@@ -89,6 +87,7 @@ WRAPPED(SDL_Texture, SDL_DestroyTexture);
 WRAPPED(TTF_Font, TTF_CloseFont);
 
 class Renderer {
+	const Config& cfg;
 	// A drawback of wrapping SDL object pointers in STL smart pointers is that
 	// SDL_Init() and SDL_Quit() now have to be called from outside Renderer's
 	// constructor/destructor
@@ -101,7 +100,6 @@ class Renderer {
 
 	public:
 	enum Font { REGULAR16, REGULAR32, BOLD64, FONTS };
-	int windowX, windowY;
 	Wrapped<SDL_Window> window;
 
 	private:
@@ -115,7 +113,7 @@ class Renderer {
 	FrameRate fps;
 	Animation fade, mvmtX, mvmtY;
 	Camera camera;
-	Renderer();
+	Renderer(const Config& config);
 	void renderMapLayer(Map&);
 	void drawEntities(EntitiesArray&);
 	void print(const std::string&, Font, SDL_Rect&, char, char);

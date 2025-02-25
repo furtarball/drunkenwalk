@@ -31,44 +31,47 @@ Renderer::SDLGuard::~SDLGuard() {
 	SDL_Quit();
 }
 
-Renderer::Renderer()
-	: windowX(1024), windowY(768),
+Renderer::Renderer(const Config& config)
+	: cfg{config},
 	  window{SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED,
-							  SDL_WINDOWPOS_UNDEFINED, windowX, windowY,
-							  SDL_WINDOW_RESIZABLE)},
+							  SDL_WINDOWPOS_UNDEFINED, cfg.window_w,
+							  cfg.window_h, SDL_WINDOW_RESIZABLE)},
 	  renderer{SDL_CreateRenderer(
 		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)},
 	  mapLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
-								 SDL_TEXTUREACCESS_TARGET, Map::X * spriteX,
-								 Map::Y * spriteY)},
+								 SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
+								 cfg.map_h * cfg.tile_h)},
 	  entityLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-									SDL_TEXTUREACCESS_TARGET, Map::X * spriteX,
-									Map::Y * spriteY)},
-	  environment{IMG_LoadTexture(renderer, "assets/environment.png")},
-	  entities{IMG_LoadTexture(renderer, "assets/entities.png")},
-	  fonts{TTF_OpenFont("assets/Terminus.ttf", 16),
-			TTF_OpenFont("assets/Terminus.ttf", 32),
-			TTF_OpenFont("assets/Terminus-Bold.ttf", 64)},
-	  fps(60), fade(&Animation::square, 255, 0, fps.fps),
-	  camera(windowX, windowY) {
+									SDL_TEXTUREACCESS_TARGET,
+									cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
+	  environment{
+		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
+	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
+	  fonts{TTF_OpenFont(cfg.asset_path(cfg.font_regular_file).c_str(),
+						 cfg.font_regular_size),
+			TTF_OpenFont(cfg.asset_path(cfg.font_medium_file).c_str(),
+						 cfg.font_medium_size),
+			TTF_OpenFont(cfg.asset_path(cfg.font_big_file).c_str(),
+						 cfg.font_big_size)},
+	  fps{60}, fade{&Animation::square, 255, 0, fps.fps},
+	  camera{cfg} {
 
 	SDL_SetTextureBlendMode(entityLayer, SDL_BLENDMODE_BLEND);
-	// PRERR(fonts[0] = TTF_OpenFont("assets/gallant12x22.ttf", 22));
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 }
 
 void Renderer::renderMapLayer(Map& map) {
 	SDL_SetRenderTarget(renderer, mapLayer);
-	SDL_Rect src = {0, 0, spriteX, spriteY};
+	SDL_Rect src = {0, 0, cfg.tile_w, cfg.tile_h};
 	SDL_Rect dst = src;
-	for (size_t i = 0; i < Map::Y; i++) {
-		for (size_t j = 0; j < Map::X; j++) {
-			src.x = map[j][i] * spriteX;
+	for (int i = 0; i < cfg.map_h; i++) {
+		for (int j = 0; j < cfg.map_w; j++) {
+			src.x = map[j][i] * cfg.tile_w;
 			SDL_RenderCopy(renderer, environment, &src, &dst);
-			dst.x += spriteX;
+			dst.x += cfg.tile_w;
 		}
 		dst.x = 0;
-		dst.y += spriteY;
+		dst.y += cfg.tile_h;
 	}
 	SDL_SetRenderTarget(renderer, NULL);
 }
@@ -90,8 +93,9 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			const auto& s = (*i)->sprite;
 			SDL_Rect offset{s.pos_x, (frame % s.frames) * s.dim_y, s.dim_x,
 							s.dim_y};
-			SDL_Rect pos{((x * spriteX) + (spriteX / 2)) - (s.dim_x / 2),
-						 (y * spriteY) - (s.dim_y - spriteY), s.dim_x, s.dim_y};
+			SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.dim_x / 2),
+						 (y * cfg.tile_h) - (s.dim_y - cfg.tile_h), s.dim_x,
+						 s.dim_y};
 			if (i == earr.player()) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
@@ -106,10 +110,10 @@ void Renderer::prepareAll(Map& map, EntitiesArray& earr,
 						  std::shared_ptr<Player> player, Seed& seed) {
 	renderMapLayer(map);
 	SDL_Rect targetRect;
-	targetRect.w = static_cast<int>(ceil(camera.sdl.w * scale));
-	targetRect.h = static_cast<int>(ceil(camera.sdl.h * scale));
-	targetRect.x = static_cast<int>(ceil((windowX - targetRect.w) / 2.0));
-	targetRect.y = static_cast<int>(ceil((windowY - targetRect.h) / 2.0));
+	targetRect.w = static_cast<int>(ceil(camera.sdl.w * cfg.scale));
+	targetRect.h = static_cast<int>(ceil(camera.sdl.h * cfg.scale));
+	targetRect.x = static_cast<int>(ceil((cfg.window_w - targetRect.w) / 2.0));
+	targetRect.y = static_cast<int>(ceil((cfg.window_h - targetRect.h) / 2.0));
 	SDL_RenderCopy(renderer, mapLayer, &camera.sdl, &targetRect);
 	drawEntities(earr);
 	camera.followPlayer(player->position, mvmtX, mvmtY);
@@ -150,39 +154,41 @@ void FrameRate::measure() {
 }
 
 bool Camera::visible(Position p) {
-	if ((((p.getX() + 1) * spriteX) < sdl.x) ||
-		(((p.getY() + 1) * spriteY) < sdl.y) ||
-		(((p.getX() - 1) * spriteX) > (sdl.x + sdl.w)) ||
-		(((p.getY() - 1) * spriteY) > (sdl.y + sdl.h)))
+	if ((((p.getX() + 1) * cfg.tile_w) < sdl.x) ||
+		(((p.getY() + 1) * cfg.tile_h) < sdl.y) ||
+		(((p.getX() - 1) * cfg.tile_w) > (sdl.x + sdl.w)) ||
+		(((p.getY() - 1) * cfg.tile_h) > (sdl.y + sdl.h)))
 		return false;
 	return true;
 }
 
 void Camera::followPlayer(Position& pos, Animation& mvmtX, Animation& mvmtY) {
-	sdl = {static_cast<int>(pos.getX() * spriteX - (windowX / (scale * 2))),
-		   static_cast<int>(pos.getY() * spriteY - (windowY / (scale * 2))),
-		   static_cast<int>(ceil(windowX / scale)),
-		   static_cast<int>(ceil(windowY / scale))};
+	sdl = {static_cast<int>(pos.getX() * cfg.tile_w -
+							(cfg.window_w / (cfg.scale * 2))),
+		   static_cast<int>(pos.getY() * cfg.tile_h -
+							(cfg.window_h / (cfg.scale * 2))),
+		   static_cast<int>(ceil(cfg.window_w / cfg.scale)),
+		   static_cast<int>(ceil(cfg.window_h / cfg.scale))};
 	sdl.x += mvmtX.currentValue;
 	sdl.y += mvmtY.currentValue;
 	// check if the map is narrower (shorter) than the viewport
 	// if not, check if the above has tried to move it outside the map
-	if (((Map::X - 1) * spriteX) < sdl.w) {
-		sdl.w = ((Map::X - 1) * spriteX);
+	if (((cfg.map_w - 1) * cfg.tile_w) < sdl.w) {
+		sdl.w = ((cfg.map_w - 1) * cfg.tile_w);
 		sdl.x = 0;
 	} else {
-		if (sdl.x < spriteX)
-			sdl.x = spriteX;
-		else if ((sdl.x + sdl.w) > ((Map::X - 1) * spriteX))
-			sdl.x = (Map::X - 1) * spriteX - sdl.w;
+		if (sdl.x < cfg.tile_w)
+			sdl.x = cfg.tile_w;
+		else if ((sdl.x + sdl.w) > ((cfg.map_w - 1) * cfg.tile_w))
+			sdl.x = (cfg.map_w - 1) * cfg.tile_w - sdl.w;
 	}
-	if (((Map::Y - 1) * spriteY) < sdl.h) {
-		sdl.h = ((Map::Y - 1) * spriteY);
+	if (((cfg.map_h - 1) * cfg.tile_h) < sdl.h) {
+		sdl.h = ((cfg.map_h - 1) * cfg.tile_h);
 		sdl.y = 0;
 	} else {
-		if (sdl.y < spriteY)
-			sdl.y = spriteY;
-		else if ((sdl.y + sdl.h) > ((Map::Y - 1) * spriteY))
-			sdl.y = (Map::Y - 1) * spriteY - sdl.h;
+		if (sdl.y < cfg.tile_h)
+			sdl.y = cfg.tile_h;
+		else if ((sdl.y + sdl.h) > ((cfg.map_h - 1) * cfg.tile_h))
+			sdl.y = (cfg.map_h - 1) * cfg.tile_h - sdl.h;
 	}
 }
