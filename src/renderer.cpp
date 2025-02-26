@@ -38,12 +38,12 @@ Renderer::Renderer(const Config& config)
 							  cfg.window_h, SDL_WINDOW_RESIZABLE)},
 	  renderer{SDL_CreateRenderer(
 		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)},
-	  mapLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
-								 SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
-								 cfg.map_h * cfg.tile_h)},
-	  entityLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-									SDL_TEXTUREACCESS_TARGET,
-									cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
+	  mapLayer{SDL_CreateTexture(
+		  renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
+		  cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
+	  entityLayer{SDL_CreateTexture(
+		  renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+		  cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
 	  environment{
 		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
 	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
@@ -53,8 +53,7 @@ Renderer::Renderer(const Config& config)
 						 cfg.font_medium_size),
 			TTF_OpenFont(cfg.asset_path(cfg.font_big_file).c_str(),
 						 cfg.font_big_size)},
-	  fps{60}, fade{&Animation::square, 255, 0, fps.fps},
-	  camera{cfg} {
+	  fps{60}, fade{&Animation::square, 255, 0, fps.fps}, camera{cfg} {
 
 	SDL_SetTextureBlendMode(entityLayer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -77,21 +76,21 @@ void Renderer::renderMapLayer(Map& map) {
 }
 
 void Renderer::drawEntities(EntitiesArray& earr) {
-	static Uint64 prevTicks = fps.ticks;
-	static int frame = 0;
-	if (fps.ticks >= prevTicks + 1000) {
-		frame++;
-		prevTicks = fps.ticks;
-	}
-
 	SDL_SetRenderTarget(renderer, entityLayer);
 	SDL_RenderClear(renderer);
 	// this order ensures player is always on top
 	for (auto i = earr.end() - 1; i >= earr.begin(); i--) {
 		int x = (*i)->position.getX(), y = (*i)->position.getY();
 		if (camera.visible((*i)->position)) {
-			const auto& s = (*i)->sprite;
-			SDL_Rect offset{s.pos_x, (frame % s.frames) * s.dim_y, s.dim_x,
+			auto& s = (*i)->sprite;
+			if ((s.frames > 1) && (fps.ticks >= s.next)) {
+					auto advance{(fps.ticks - s.next) / s.frame_ms};
+					s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
+					s.next = fps.ticks + s.frame_ms;
+				}
+			}
+
+			SDL_Rect offset{s.pos_x, (s.curr_frame) * s.dim_y, s.dim_x,
 							s.dim_y};
 			SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.dim_x / 2),
 						 (y * cfg.tile_h) - (s.dim_y - cfg.tile_h), s.dim_x,

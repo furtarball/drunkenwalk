@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <SDL2/SDL_stdinc.h>
 #include "map.h"
 
 class Entity {
@@ -17,6 +18,8 @@ class Entity {
 		int dim_y = 24;
 		int frames = 1;
 		int frame_ms = -1;
+		Uint64 next = 0;
+		int curr_frame = 0;
 	} sprite;
 	Entity(Position pos, bool collision, Sprite sprite)
 		: position{pos}, collision{collision}, sprite{sprite} {}
