@@ -14,5 +14,13 @@
 	"font_big_file": "Terminus-Bold.ttf",
 	"font_regular_size": 16,
 	"font_medium_size": 32,
-	"font_big_size": 64
+	"font_big_size": 64,
+	"player_spritesheet": "player.png",
+	"player_sprite_object": {
+		"pos_x": 16,
+		"dim_x": 16,
+		"dim_y": 25,
+		"frames": 1,
+		"frame_ms": 150
+	}
 }

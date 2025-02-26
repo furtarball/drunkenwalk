@@ -7,18 +7,19 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <functional>
 #include <memory>
 #include <vector>
 
 class Animation {
 	int initialValue;
-	unsigned currentFrame;
+	unsigned currentFrame{0};
 	unsigned frames;
 	int finalValue;
 	int delta;
 
 	public:
-	int currentValue;
+	int currentValue{0};
 	unsigned (Animation::*funcType)();
 	unsigned linear() {
 		return initialValue + round((double)delta / frames * currentFrame);
@@ -31,11 +32,10 @@ class Animation {
 		return round(delta / ::log(frames + 1) * ::log(currentFrame + 1)) +
 			   initialValue;
 	}
-	Animation()
-		: initialValue(0), finalValue(0), currentValue(0), funcType(nullptr) {}
+	Animation() : initialValue(0), finalValue(0), funcType(nullptr) {}
 	Animation(unsigned (Animation::*f)(), int i, int fin, unsigned l)
-		: initialValue(i), currentFrame(0), frames(l), finalValue(fin),
-		  delta(fin - i), currentValue(0), funcType(f) {}
+		: initialValue(i), frames(l), finalValue(fin), delta(fin - i),
+		  funcType(f) {}
 	unsigned operator()();
 	operator bool() { return static_cast<bool>(funcType); }
 };
@@ -104,7 +104,8 @@ class Renderer {
 
 	private:
 	Wrapped<SDL_Renderer> renderer;
-	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities;
+	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities,
+		player_spritesheet;
 	std::array<Wrapped<TTF_Font>, 3> fonts;
 	Wrapped<SDL_Texture> textTexture(const std::string& t, Font f,
 									 SDL_Rect& dim);

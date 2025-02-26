@@ -2,11 +2,11 @@
 	{
 		"Name": "Ant",
 		"Sprite": {
-			"Pos_x": 32,
-			"Dim_x": 16,
-			"Dim_y": 24,
-			"Frames": 2,
-			"Frame_ms": 500
+			"pos_x": 16,
+			"dim_x": 16,
+			"dim_y": 24,
+			"frames": 2,
+			"frame_ms": 500
 		},
 		"MaxHP": 5,
 		"Attack": 2,
@@ -15,9 +15,9 @@
 	{
 		"Name": "Badger",
 		"Sprite": {
-			"Pos_x": 48,
-			"Dim_x": 16,
-			"Dim_y": 24
+			"pos_x": 32,
+			"dim_x": 16,
+			"dim_y": 24
 		},
 		"MaxHP": 10,
 		"Attack": 4,
@@ -26,11 +26,11 @@
 	{
 		"Name": "Crow",
 		"Sprite": {
-			"Pos_x": 64,
-			"Dim_x": 16,
-			"Dim_y": 24,
-			"Frames": 2,
-			"Frame_ms": 500
+			"pos_x": 48,
+			"dim_x": 16,
+			"dim_y": 24,
+			"frames": 2,
+			"frame_ms": 500
 		},
 		"MaxHP": 15,
 		"Attack": 7,

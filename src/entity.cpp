@@ -5,16 +5,6 @@
 
 unsigned Door::count = 0;
 
-void from_json(const nlohmann::json& j, Entity::Sprite& s) {
-	j.at("Pos_x").get_to(s.pos_x);
-	j.at("Dim_x").get_to(s.dim_x);
-	j.at("Dim_y").get_to(s.dim_y);
-	if (j.find("Frames") != j.end()) {
-		j.at("Frames").get_to(s.frames);
-		if (j.find("Frame_ms") != j.end())
-			j.at("Frame_ms").get_to(s.frame_ms);
-	}
-}
 Enemy::Enemy(Position pos, const nlohmann::json& j)
 	: Entity{pos, true, {j.at("Sprite").template get<Sprite>()}} {
 	j.at("Name").get_to(name);
@@ -23,7 +13,7 @@ Enemy::Enemy(Position pos, const nlohmann::json& j)
 	j.at("Defense").get_to(defense);
 	hp = maxhp;
 }
-Item::Item(Position pos, const nlohmann::json& j) : Entity{pos, false, {96}} {
+Item::Item(Position pos, const nlohmann::json& j) : Entity{pos, false, {80}} {
 	j.at("Name").get_to(name);
 	j.at("HP").get_to(hp);
 	j.at("MaxHP").get_to(maxhp);

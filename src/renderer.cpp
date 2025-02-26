@@ -47,6 +47,8 @@ Renderer::Renderer(const Config& config)
 	  environment{
 		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
 	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
+	  player_spritesheet{IMG_LoadTexture(
+		  renderer, cfg.asset_path(cfg.player_spritesheet).c_str())},
 	  fonts{TTF_OpenFont(cfg.asset_path(cfg.font_regular_file).c_str(),
 						 cfg.font_regular_size),
 			TTF_OpenFont(cfg.asset_path(cfg.font_medium_file).c_str(),
@@ -96,8 +98,12 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			if (i == *(earr.player())) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
-			}
-			SDL_RenderCopy(renderer, entities, &offset, &pos);
+				if ((!mvmtX) && (!mvmtY) &&
+					((s.curr_frame == 0) || (s.curr_frame == 2)))
+					s.frames = 1;
+				SDL_RenderCopy(renderer, player_spritesheet, &offset, &pos);
+			} else
+				SDL_RenderCopy(renderer, entities, &offset, &pos);
 		}
 	}
 	SDL_SetRenderTarget(renderer, NULL);

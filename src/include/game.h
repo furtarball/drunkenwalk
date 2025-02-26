@@ -1,11 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "config.h"
 #include "entity.h"
 #include "level.h"
 #include "map.h"
 #include "renderer.h"
-#include "config.h"
 #include <SDL2/SDL.h>
 #include <array>
 #include <cmath>
@@ -18,6 +18,7 @@ class Game {
 	std::unique_ptr<Level> level;
 	std::shared_ptr<Player> player;
 	Renderer renderer;
+	void stop_walking();
 	bool move_up();
 	bool move_down();
 	bool move_left();
@@ -28,7 +29,10 @@ class Game {
 	bool handle_movement(const Uint8*, SDL_Event&);
 
 	public:
-	Game() : config{"assets/config.json"}, player(new Player), renderer{config} {}
+	Game()
+		: config{"assets/config.json"},
+		  player{std::make_shared<Player>(config.player_sprite_object)},
+		  renderer{config} {}
 	void run();
 };
 
