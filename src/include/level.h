@@ -8,32 +8,36 @@
 #include <fstream>
 #include <cmath>
 #include <typeinfo>
+#include <concepts>
 #include "map.h"
 #include "entity.h"
 #include "mapgen.h"
 
-class EntitiesArray : private std::vector<std::shared_ptr<Entity>> {
-  bool players;
-  size_t mobs, doors, items;
+class EntitiesArray {
+  std::vector<std::shared_ptr<Entity>> data;
+  size_t doors = 0;
+  size_t items = 0;
+  bool players = 0;
+  size_t mobs = 0;
   public:
-  EntitiesArray() : players(0), mobs(0), doors(0), items(0) {}
+  EntitiesArray() = default;
   // iterators; standard vector iterator invalidation rules apply
-  auto begin() { return std::vector<std::shared_ptr<Entity>>::begin(); }
-  auto end() { return std::vector<std::shared_ptr<Entity>>::end(); }
-  auto player() { return begin(); }
-  auto mob0() { return player() + players; }
-  auto door0() { return mob0() + mobs; }
+  // this order ensures player is always on top
+  auto begin() { return data.begin(); }
+  auto end() { return data.end(); }
+  auto door0() { return begin(); }
   auto item0() { return door0() + doors; }
-  auto mob_end() { return door0(); }
+  auto player() { return item0() + items; }
+  auto mob0() { return player() + players; }
   auto door_end() { return item0(); }
-  auto item_end() { return end(); }
+  auto item_end() { return player(); }
+  auto mob_end() { return end(); }
 
-  void push_back(std::shared_ptr<Player>);
-  // these accept traditional pointers to turn into shared_ptrs
-  void push_back(Enemy*);
-  void push_back(Door*);
-  void push_back(Item*);
-  iterator erase(iterator);
+  void insert(std::shared_ptr<Player>);
+  void insert(std::shared_ptr<Enemy>);
+  void insert(std::shared_ptr<Door>);
+  void insert(std::shared_ptr<Item>);
+  decltype(data)::iterator erase(decltype(data)::iterator);
 };
 
 using Seed = std::array<unsigned, 2>;

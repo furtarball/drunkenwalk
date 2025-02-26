@@ -2,49 +2,51 @@
 #include "include/entity.h"
 #include "include/mapgen.h"
 
-void EntitiesArray::push_back(std::shared_ptr<Player> p) {
-  if((size() > 0) && (typeid(*(at(0))) == typeid(Player)))
-    at(0) = p;
-  else
-    insert(player(), std::shared_ptr<Entity>(p));
-  players = 1;
-}
-void EntitiesArray::push_back(Enemy* e) {
-  insert(mob_end(), std::shared_ptr<Entity>(e));
-  mobs++;
-}
-void EntitiesArray::push_back(Door* d) {
-  insert(door_end(), std::shared_ptr<Entity>(d));
+void EntitiesArray::insert(std::shared_ptr<Door> d) {
+  data.insert(door_end(), d);
   doors++;
 }
-void EntitiesArray::push_back(Item* i) {
-  insert(item_end(), std::shared_ptr<Entity>(i));
+void EntitiesArray::insert(std::shared_ptr<Item> i) {
+  data.insert(item_end(), i);
   items++;
 }
-EntitiesArray::iterator EntitiesArray::erase(EntitiesArray::iterator pos) {
+void EntitiesArray::insert(std::shared_ptr<Player> p) {
+  if((data.size() > 0) && (typeid(*player()) == typeid(Player)))
+    *player() = p;
+  else
+    data.insert(player(), p);
+  players = 1;
+}
+void EntitiesArray::insert(std::shared_ptr<Enemy> e) {
+  data.insert(mob_end(), e);
+  mobs++;
+}
+decltype(EntitiesArray::data)::iterator EntitiesArray::erase(decltype(EntitiesArray::data)::iterator pos) {
   size_t n = pos - begin();
-  if((pos > mob0()) && (pos < mob_end()))
-    mobs--;
-  else if((pos > door0()) && (pos < door_end()))
+  if((pos > door0()) && (pos < door_end()))
     doors--;
   else if((pos > item0()) && (pos < item_end()))
     items--;
-  std::vector<std::shared_ptr<Entity>>::erase(pos);
+  else if(pos == player())
+    players = 0;
+  else if((pos > mob0()) && (pos < mob_end()))
+    mobs--;
+  data.erase(pos);
   return begin() + n;
 }
 
 Level::Level(size_t map_w, size_t map_h, Seed& a, std::shared_ptr<Player>& p) : map{map_w, map_h}, seed(a.begin(), a.end()), player(p) {
   switch(static_cast<MapType>(a[0] % static_cast<unsigned>(MAPTYPES))) {
   case CAVE_REGULAR:
-    gen = std::unique_ptr<MapGenerator>(new DrunkenWalk(seed, map, entities));
+    gen = std::make_unique<DrunkenWalk>(seed, map, entities);
     break;
   case CAVE_CORRIDOR:
-    gen = std::unique_ptr<MapGenerator>(new TargetedDrunkenWalk(seed, map, entities));
+    gen = std::make_unique<TargetedDrunkenWalk>(seed, map, entities);
     break;
   default:
     std::cerr << "No map generator created!" << std::endl;
   }
-  entities.push_back(player);
+  entities.insert(player);
   gen->generateMap();
   gen->populate();
 }

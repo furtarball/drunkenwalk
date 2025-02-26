@@ -78,16 +78,14 @@ void Renderer::renderMapLayer(Map& map) {
 void Renderer::drawEntities(EntitiesArray& earr) {
 	SDL_SetRenderTarget(renderer, entityLayer);
 	SDL_RenderClear(renderer);
-	// this order ensures player is always on top
-	for (auto i = earr.end() - 1; i >= earr.begin(); i--) {
-		int x = (*i)->position.getX(), y = (*i)->position.getY();
-		if (camera.visible((*i)->position)) {
-			auto& s = (*i)->sprite;
+	for (auto i : earr) {
+		int x = i->position.getX(), y = i->position.getY();
+		if (camera.visible(i->position)) {
+			auto& s = i->sprite;
 			if ((s.frames > 1) && (fps.ticks >= s.next)) {
-					auto advance{(fps.ticks - s.next) / s.frame_ms};
-					s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
-					s.next = fps.ticks + s.frame_ms;
-				}
+				auto advance{(fps.ticks - s.next) / s.frame_ms};
+				s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
+				s.next = fps.ticks + s.frame_ms;
 			}
 
 			SDL_Rect offset{s.pos_x, (s.curr_frame) * s.dim_y, s.dim_x,
@@ -95,7 +93,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.dim_x / 2),
 						 (y * cfg.tile_h) - (s.dim_y - cfg.tile_h), s.dim_x,
 						 s.dim_y};
-			if (i == earr.player()) {
+			if (i == *(earr.player())) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
 			}
