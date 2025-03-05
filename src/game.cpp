@@ -29,7 +29,7 @@ void Game::run() {
 
 bool Game::move_up() {
 	Position newPos = player->position.up(level->map);
-	player->sprite.pos_x = 0;
+	player->sprite.x = 0;
 	player->sprite.frames = 4;
 	if (!level->collision(newPos)) {
 		player->position = newPos;
@@ -41,7 +41,7 @@ bool Game::move_up() {
 }
 bool Game::move_down() {
 	Position newPos = player->position.down(level->map);
-	player->sprite.pos_x = 16;
+	player->sprite.x = 16;
 	player->sprite.frames = 4;
 	if (!level->collision(newPos)) {
 		player->position = newPos;
@@ -53,7 +53,7 @@ bool Game::move_down() {
 }
 bool Game::move_left() {
 	Position newPos = player->position.left(level->map);
-	player->sprite.pos_x = 32;
+	player->sprite.x = 32;
 	player->sprite.frames = 4;
 	if (!level->collision(newPos)) {
 		player->position = newPos;
@@ -65,7 +65,7 @@ bool Game::move_left() {
 }
 bool Game::move_right() {
 	Position newPos = player->position.right(level->map);
-	player->sprite.pos_x = 48;
+	player->sprite.x = 48;
 	player->sprite.frames = 4;
 	if (!level->collision(newPos)) {
 		player->position = newPos;
@@ -76,7 +76,7 @@ bool Game::move_right() {
 	return false;
 }
 
-bool Game::handle_movement(const Uint8* kbd, SDL_Event& e) {
+bool Game::handle_movement(const Uint8* kbd) {
 	bool moved = false;
 	if (!(renderer.mvmtY ||
 		  renderer.mvmtX)) { // if the character isn't already moving
@@ -89,26 +89,19 @@ bool Game::handle_movement(const Uint8* kbd, SDL_Event& e) {
 		else if (kbd[SDL_SCANCODE_RIGHT] || kbd[SDL_SCANCODE_D])
 			moved = move_right();
 	}
-
-	if (e.key.type == SDL_KEYDOWN) {
-		if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-			if (!(level->grab()))
-				level->fight();
-		}
-	}
 	return moved;
 }
 
 void Game::death() {
 	SDL_Event e;
 	do {
-		SDL_PollEvent(&e);
 		SDL_GetWindowSize(renderer.window, &(config.window_w),
 						  &(config.window_h));
 		renderer.clear();
 		SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
 		renderer.print("DEAD", Renderer::BOLD64, dst, 'c', 'c');
 		renderer.present();
+		SDL_WaitEvent(&e);
 	} while (e.type != SDL_QUIT);
 }
 
@@ -129,15 +122,18 @@ void Game::inventory() {
 			renderer.print(text.str(), Renderer::REGULAR16, dst, 't', 'l');
 		}
 		if (e.key.type == SDL_KEYDOWN) {
-			if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+			switch (e.key.keysym.scancode) {
+			case SDL_SCANCODE_DOWN: {
 				if ((choice + 1) < player->bag.size())
 					choice++;
+				break;
 			}
-			if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
+			case SDL_SCANCODE_UP: {
 				if (choice > 0)
 					choice--;
+				break;
 			}
-			if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+			case SDL_SCANCODE_SPACE: {
 				if (choice < player->bag.size()) {
 					auto item = player->bag[choice];
 					if ((item->type == Item::WEAPON) ||
@@ -147,6 +143,10 @@ void Game::inventory() {
 						player->bag.erase(player->bag.begin() + choice);
 					}
 				}
+				break;
+			}
+			default:
+				break;
 			}
 		}
 		{
@@ -178,24 +178,43 @@ int Game::lvl() {
 	if (level)
 		level->seed.generate(seed.begin(), seed.begin() + 1);
 	level = std::make_unique<Level>(config.map_w, config.map_h, seed, player);
+	renderer.camera.followPlayer();
 	renderer.fade = Animation(&Animation::log, 255, 0, renderer.fps.fps / 2);
 	bool door = false;
 	while (true) {
-		SDL_PollEvent(&e);
-		bool moved = handle_movement(SDL_GetKeyboardState(NULL), e);
-		if (e.type == SDL_QUIT)
-			return -1;
-		if (player->hp == 0) {
-			death();
-			return -1;
+		while (SDL_PollEvent(&e)) {
+			switch (e.type) {
+			case SDL_QUIT:
+				return -1;
+			case SDL_KEYDOWN: {
+				switch (e.key.keysym.scancode) {
+				case SDL_SCANCODE_SPACE: {
+					if (!(level->grab())) {
+						level->fight();
+						if (player->hp == 0) {
+							death();
+							SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
+							return -1;
+						}
+					}
+					break;
+				}
+				case SDL_SCANCODE_E: {
+					inventory();
+					SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
+					break;
+				}
+				default:
+					break;
+				}
+				break;
+			}
+			}
 		}
-		if ((e.key.type == SDL_KEYDOWN) &&
-			(e.key.keysym.scancode == SDL_SCANCODE_E))
-			inventory();
+		bool moved{handle_movement(SDL_GetKeyboardState(NULL))};
 		renderer.fps();
 		SDL_GetWindowSize(renderer.window, &(config.window_w),
 						  &(config.window_h));
-		renderer.clear();
 		renderer.prepareAll(level->map, level->entities, player, seed);
 		renderer.applyFade();
 		renderer.present();

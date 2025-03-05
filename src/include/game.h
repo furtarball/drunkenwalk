@@ -26,13 +26,13 @@ class Game {
 	int lvl(); // returns 0 to generate another level, -1 to exit
 	void inventory();
 	void death();
-	bool handle_movement(const Uint8*, SDL_Event&);
+	bool handle_movement(const Uint8*);
 
 	public:
 	Game()
 		: config{"assets/config.json"},
 		  player{std::make_shared<Player>(config.player_sprite_object)},
-		  renderer{config} {}
+		  renderer{config, player->position} {}
 	void run();
 };
 

@@ -9,16 +9,16 @@
 #include <vector>
 
 struct Sprite {
-	int pos_x = 0;
-	int dim_x = 16;
-	int dim_y = 24;
+	int x = 0;
+	int w = 16;
+	int h = 24;
 	int frames = 1;
 	int frame_ms = -1;
 	Uint64 next = 0;
 	int curr_frame = 0;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Sprite, pos_x, dim_x, dim_y,
-												frames, frame_ms);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Sprite, x, w, h, frames,
+												frame_ms);
 
 class Entity {
 	public:

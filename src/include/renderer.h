@@ -58,12 +58,19 @@ struct FrameRate {
 
 class Camera {
 	const Config& cfg;
+	const Position& player_pos;
+	const Animation& mvmtX;
+	const Animation& mvmtY;
+	SDL_Rect rect;
 
 	public:
-	SDL_Rect sdl;
+	operator const SDL_Rect*() { return &rect; }
+	const SDL_Rect& sdl() { return rect; }
 	bool visible(Position p);
-	void followPlayer(Position&, Animation&, Animation&);
-	Camera(const Config& config) : cfg{config} {}
+	void followPlayer();
+	Camera(const Config& config, const Animation& mvmtX, const Animation& mvmtY,
+		   const Position& player_pos)
+		: cfg{config}, player_pos{player_pos}, mvmtX{mvmtX}, mvmtY{mvmtY} {}
 };
 
 // Macro for instantiating std::unique_ptr with default deleters
@@ -114,7 +121,7 @@ class Renderer {
 	FrameRate fps;
 	Animation fade, mvmtX, mvmtY;
 	Camera camera;
-	Renderer(const Config& config);
+	Renderer(const Config& config, const Position& player_pos);
 	void renderMapLayer(Map&);
 	void drawEntities(EntitiesArray&);
 	void print(const std::string&, Font, SDL_Rect&, char, char);
@@ -123,7 +130,7 @@ class Renderer {
 					std::array<unsigned, 2>&);
 	void applyFade();
 	void present() { SDL_RenderPresent(renderer); }
-	void clear() { SDL_RenderClear(renderer); };
+	void clear();
 };
 
 #endif

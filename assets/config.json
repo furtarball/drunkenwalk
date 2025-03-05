@@ -5,6 +5,7 @@
 	"window_h": 768,
 	"assets_dir": "assets",
 	"environment": "environment.png",
+	"environment_background": [39, 0, 15, 255],
 	"entities": "entities.png",
 	"tile_w": 16,
 	"tile_h": 24,
@@ -17,9 +18,9 @@
 	"font_big_size": 64,
 	"player_spritesheet": "player.png",
 	"player_sprite_object": {
-		"pos_x": 16,
-		"dim_x": 16,
-		"dim_y": 25,
+		"x": 16,
+		"w": 16,
+		"h": 25,
 		"frames": 1,
 		"frame_ms": 150
 	}
