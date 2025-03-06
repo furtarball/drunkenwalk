@@ -16,8 +16,14 @@
 #include <vector>
 using namespace std;
 
-Config::Config(const char* json_path) {
+Config::Config(const std::string& json_path) {
 	std::ifstream f{json_path};
+	if (!f) {
+		std::ofstream of{json_path};
+		nlohmann::json oj{*this};
+		of << oj[0].dump(1, '\t') << std::endl;
+		return;
+	}
 	nlohmann::json j{nlohmann::json::parse(f)};
 	j.at(0).get_to(*this);
 }

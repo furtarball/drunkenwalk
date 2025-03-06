@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Drunken Walk
+Exec=drunkenwalk
+Icon=drunkenwalk
+Terminal=false
+Categories=Game

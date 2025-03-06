@@ -1,0 +1,11 @@
+#ifndef COMPILETIME_H
+#define COMPILETIME_H
+#include <string>
+#include <cstdlib>
+#include <filesystem>
+
+namespace CompileTime {
+	const char* const assets_dir{"@assetsdir@"};
+};
+
+#endif

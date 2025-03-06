@@ -92,6 +92,8 @@ WRAPPED(SDL_Renderer, SDL_DestroyRenderer);
 WRAPPED(SDL_Surface, SDL_FreeSurface);
 WRAPPED(SDL_Texture, SDL_DestroyTexture);
 WRAPPED(TTF_Font, TTF_CloseFont);
+inline void FreePath(char* p) { SDL_free(p); }
+WRAPPED(char, FreePath);
 
 class Renderer {
 	const Config& cfg;
