@@ -29,8 +29,8 @@ class Game {
 	bool handle_movement(const Uint8*);
 
 	public:
-	Game()
-		: config{"assets/config.json"},
+	Game(const char* config_file)
+		: config{config_file},
 		  player{std::make_shared<Player>(config.player_sprite_object)},
 		  renderer{config, player->position} {}
 	void run();

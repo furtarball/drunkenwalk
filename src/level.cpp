@@ -1,6 +1,7 @@
 #include "include/level.h"
 #include "include/entity.h"
 #include "include/mapgen.h"
+#include "include/config.h"
 
 void EntitiesArray::insert(std::shared_ptr<Door> d) {
 	data.insert(door_end(), d);
@@ -36,7 +37,8 @@ EntitiesArray::erase(decltype(EntitiesArray::data)::iterator pos) {
 	return begin() + n;
 }
 
-Level::Level(size_t map_w, size_t map_h, Seed& a, std::shared_ptr<Player>& p)
+Level::Level(size_t map_w, size_t map_h, Seed& a, std::shared_ptr<Player>& p,
+			 const Config& cfg)
 	: map{map_w, map_h}, seed(a.begin(), a.end()), player(p) {
 	switch (static_cast<MapType>(a[0] % static_cast<unsigned>(MAPTYPES))) {
 	case CAVE_REGULAR:
@@ -46,11 +48,15 @@ Level::Level(size_t map_w, size_t map_h, Seed& a, std::shared_ptr<Player>& p)
 		gen = std::make_unique<TargetedDrunkenWalk>(seed, map, entities);
 		break;
 	default:
-		std::cerr << "No map generator created!" << std::endl;
+		throw std::runtime_error{"Unable to create a map generator."};
 	}
 	entities.insert(player);
 	gen->generateMap();
-	gen->populate();
+	std::ifstream items_f{cfg.asset_path(cfg.item_types)};
+	nlohmann::json itemTypes = nlohmann::json::parse(items_f);
+	std::ifstream enemies_f{cfg.asset_path(cfg.enemy_types)};
+	nlohmann::json enemyTypes = nlohmann::json::parse(enemies_f);
+	gen->populate(itemTypes, enemyTypes);
 }
 bool Level::collision(const Position p) {
 	if (map[p] != 1)

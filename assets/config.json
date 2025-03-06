@@ -7,6 +7,8 @@
 	"environment": "environment.png",
 	"environment_background": [39, 0, 15, 255],
 	"entities": "entities.png",
+	"enemy_types": "enemies.json",
+	"item_types": "items.json",
 	"tile_w": 16,
 	"tile_h": 24,
 	"scale": 2.0,

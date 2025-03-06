@@ -14,6 +14,8 @@ struct Config {
 	std::string environment{"environment.png"};
 	std::array<Uint8, 4> environment_background{39, 0, 15, 255};
 	std::string entities{"entities.png"};
+	std::string enemy_types{"enemies.json"};
+	std::string item_types{"items.json"};
 	int tile_w{16};
 	int tile_h{24};
 	double scale{2.0};
@@ -27,14 +29,14 @@ struct Config {
 	Sprite player_sprite_object{16, 16, 25, 1, 150};
 	Config() = default;
 	Config(const char* json_path);
-	std::string asset_path(std::string file) const {
+	std::string asset_path(const std::string& file) const {
 		return assets_dir + '/' + file;
 	}
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
 	Config, window_w, window_h, assets_dir, environment, environment_background,
-	entities, tile_w, tile_h, scale, font_regular_file, font_medium_file,
-	font_big_file, font_regular_size, font_medium_size, font_big_size,
-	player_spritesheet, player_sprite_object);
+	entities, enemy_types, item_types, tile_w, tile_h, scale, font_regular_file,
+	font_medium_file, font_big_file, font_regular_size, font_medium_size,
+	font_big_size, player_spritesheet, player_sprite_object);
 
 #endif

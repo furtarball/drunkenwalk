@@ -177,7 +177,8 @@ int Game::lvl() {
 	SDL_Event e;
 	if (level)
 		level->seed.generate(seed.begin(), seed.begin() + 1);
-	level = std::make_unique<Level>(config.map_w, config.map_h, seed, player);
+	level = std::make_unique<Level>(config.map_w, config.map_h, seed, player,
+									config);
 	renderer.camera.followPlayer();
 	renderer.fade = Animation(&Animation::log, 255, 0, renderer.fps.fps / 2);
 	bool door = false;
