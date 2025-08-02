@@ -94,29 +94,35 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 	SDL_RenderClear(renderer);
 	auto& bg = cfg.environment_background;
 	SDL_SetRenderDrawColor(renderer, bg[0], bg[1], bg[2], bg[3]);
-	for (auto i : earr) {
-		int x = i->position.getX(), y = i->position.getY();
-		if (camera.visible(i->position)) {
-			auto& s = i->sprite;
-			if ((s.frames > 1) && (fps.ticks >= s.next)) {
-				auto advance{(fps.ticks - s.next) / s.frame_ms};
-				s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
-				s.next = fps.ticks + s.frame_ms;
-			}
-
-			SDL_Rect offset{s.x, (s.curr_frame) * s.h, s.w, s.h};
-			SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.w / 2),
-				(y * cfg.tile_h) - (s.h - cfg.tile_h), s.w, s.h};
-			if (i == *(earr.player())) {
-				pos.x += mvmtX();
-				pos.y += mvmtY();
-				if ((!mvmtX) && (!mvmtY) &&
-					((s.curr_frame == 0) || (s.curr_frame == 2)))
-					s.frames = 1;
-				SDL_RenderCopy(renderer, player_spritesheet, &offset, &pos);
-			} else
-				SDL_RenderCopy(renderer, entities, &offset, &pos);
+	for (auto i = earr.begin(); i < earr.end(); i++) {
+		auto& e{*i};
+		int x = e->position.getX(), y = e->position.getY();
+		if (!(camera.visible(e->position)))
+			continue;
+		auto& s = e->sprite;
+		if ((s.frames > 1) && (fps.ticks >= s.next)) {
+			auto advance{(fps.ticks - s.next) / s.frame_ms};
+			s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
+			s.next = fps.ticks + s.frame_ms;
 		}
+
+		SDL_Rect offset{s.x, (s.curr_frame) * s.h, s.w, s.h};
+		SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.w / 2),
+			(y * cfg.tile_h) - (s.h - cfg.tile_h), s.w, s.h};
+		if (i == earr.player()) {
+			pos.x += mvmtX();
+			pos.y += mvmtY();
+			if ((!mvmtX) && (!mvmtY) &&
+				((s.curr_frame == 0) || (s.curr_frame == 2)))
+				s.frames = 1;
+			SDL_RenderCopy(renderer, player_spritesheet, &offset, &pos);
+		} else if ((i >= earr.mob0()) && (i < earr.mob_end())) {
+			SDL_RenderCopy(renderer, entities, &offset, &pos);
+			pos.x += s.w / 2;
+			print("----", REGULAR16, pos, 'b', 'c');
+			/* Create an all new OSD layer */
+		} else
+			SDL_RenderCopy(renderer, entities, &offset, &pos);
 	}
 	SDL_SetRenderTarget(renderer, NULL);
 }
