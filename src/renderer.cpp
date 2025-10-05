@@ -45,8 +45,8 @@ Renderer::Renderer(const Config& config, const Position& player_pos)
 		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
 		  cfg.map_h * cfg.tile_h)},
 	  osdLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
-		  cfg.map_h * cfg.tile_h)},
+		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w * cfg.scale,
+		  cfg.map_h * cfg.tile_h * cfg.scale)},
 	  environment{
 		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
 	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
@@ -126,7 +126,10 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 		} else if ((i >= earr.mob0()) && (i < earr.mob_end())) {
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
 			SDL_SetRenderTarget(renderer, osdLayer);
-			pos.x += s.w / 2;
+			// multiply by scale since the OSD layer is in native resolution
+			pos.x *= cfg.scale;
+			pos.x += s.w * cfg.scale / 2;
+			pos.y *= cfg.scale;
 			Enemy& e{dynamic_cast<Enemy&>(**i)};
 			float percentage = e.hp / static_cast<float>(e.maxhp);
 			print(std::to_string(percentage), REGULAR16, pos, 'b', 'c');
@@ -148,7 +151,14 @@ void Renderer::prepareAll(
 		.h{camera.sdl().h * cfg.scale}};
 	SDL_RenderCopy(renderer, mapLayer, camera, &targetRect);
 	SDL_RenderCopy(renderer, entityLayer, camera, &targetRect);
-	SDL_RenderCopy(renderer, osdLayer, camera, &targetRect);
+	// multiply by scale since the OSD layer is in native resolution
+	SDL_Rect camera_big{
+		.x{camera.sdl().x * cfg.scale},
+		.y{camera.sdl().y * cfg.scale},
+		.w{camera.sdl().w * cfg.scale},
+		.h{camera.sdl().h * cfg.scale}
+	};
+	SDL_RenderCopy(renderer, osdLayer, &camera_big, &targetRect);
 	drawOSD(player, seed);
 }
 
