@@ -1,9 +1,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
+#include "config.h"
 #include "entity.h"
 #include "map.h"
 #include "mapgen.h"
-#include "config.h"
 #include <array>
 #include <cmath>
 #include <concepts>
@@ -53,7 +53,7 @@ class Level {
 	enum MapType { CAVE_REGULAR, CAVE_CORRIDOR, MAPTYPES };
 	std::unique_ptr<MapGenerator> gen;
 	Level(size_t map_w, size_t map_h, Seed&, std::shared_ptr<Player>&,
-		  const Config&);
+		const Config&);
 	void placeDoors();
 	void populate();
 	void drunkenWalk();

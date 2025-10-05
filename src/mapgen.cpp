@@ -12,8 +12,8 @@ Position MapGenerator::randomPos() {
 	Position p;
 	bool withinBorders, occupied;
 	do { // picks random position until a valid and unoccupied one is found
-		p = Position((rng() % (map.width - 3)) + 1,
-					 (rng() % (map.height - 3)) + 1);
+		p = Position(
+			(rng() % (map.width - 3)) + 1, (rng() % (map.height - 3)) + 1);
 		withinBorders = (map[p.getX()][p.getY()] == 1);
 		occupied = false;
 		if (withinBorders)
@@ -34,8 +34,8 @@ void TargetedDrunkenWalk::generateMap() {
 	map.drawWall();
 	map.zeroBorder();
 }
-void TargetedDrunkenWalk::populate(const nlohmann::json& itemTypes,
-								   const nlohmann::json& enemyTypes) {
+void TargetedDrunkenWalk::populate(
+	const nlohmann::json& itemTypes, const nlohmann::json& enemyTypes) {
 	(*(entities.player()))->position = randomPos();
 	size_t mobs = map.countWalkable() / ((rng() % 100) + 50);
 	for (size_t i = 0; i < mobs; i++)
@@ -78,8 +78,8 @@ void TargetedDrunkenWalk::placeDoors() {
 		entities.insert(std::make_shared<Door>(randomDoorPos()));
 }
 
-std::array<double, 4> TargetedDrunkenWalk::distribution(Position& s,
-														Position& f) {
+std::array<double, 4> TargetedDrunkenWalk::distribution(
+	Position& s, Position& f) {
 	const double P = 0.6; // probability of choosing the correct direction
 	std::array<double, 4> p = {0};
 	if (f.getY() < s.getY())
@@ -105,10 +105,10 @@ std::array<double, 4> TargetedDrunkenWalk::distribution(Position& s,
 	return p;
 }
 
-unsigned TargetedDrunkenWalk::choose(std::mt19937& rng,
-									 std::array<double, 4>& p) {
-	std::array<double, 4> csum = {p[0], p[0] + p[1], p[0] + p[1] + p[2],
-								  p[0] + p[1] + p[2] + p[3]};
+unsigned TargetedDrunkenWalk::choose(
+	std::mt19937& rng, std::array<double, 4>& p) {
+	std::array<double, 4> csum = {
+		p[0], p[0] + p[1], p[0] + p[1] + p[2], p[0] + p[1] + p[2] + p[3]};
 	double r = static_cast<double>(rng()) / rng.max();
 	for (size_t i = 0; i < 4; i++) {
 		if (r < csum[i])
@@ -118,8 +118,8 @@ unsigned TargetedDrunkenWalk::choose(std::mt19937& rng,
 }
 
 void TargetedDrunkenWalk::drunkenWalk() {
-	std::array movements{&Position::up, &Position::down, &Position::left,
-						 &Position::right};
+	std::array movements{
+		&Position::up, &Position::down, &Position::left, &Position::right};
 	for (auto i = entities.door0(); i < entities.door_end(); i++) {
 		Position p =
 			map.getStart(); // TODO why does Map have a start pos attribute?
@@ -144,8 +144,8 @@ void DrunkenWalk::generateMap() {
 	map.zeroBorder();
 }
 
-void DrunkenWalk::populate(const nlohmann::json& itemTypes,
-						   const nlohmann::json& enemyTypes) {
+void DrunkenWalk::populate(
+	const nlohmann::json& itemTypes, const nlohmann::json& enemyTypes) {
 	size_t doors = (rng() % 4) + 1;
 	Door::count = 0;
 	for (size_t i = 0; i < doors; i++)
@@ -163,8 +163,8 @@ void DrunkenWalk::populate(const nlohmann::json& itemTypes,
 
 void DrunkenWalk::drunkenWalk() {
 	// array of pointers to member functions of class Position
-	std::array movements{&Position::up, &Position::down, &Position::left,
-						 &Position::right};
+	std::array movements{
+		&Position::up, &Position::down, &Position::left, &Position::right};
 	Position p = map.getStart();
 	for (size_t i = 0; i < STEPS; i++) {
 		map[p.getX()][p.getY()] = 1;

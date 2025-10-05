@@ -40,7 +40,7 @@ class Map {
 	Map(size_t width, size_t height)
 		: width{width}, height{height},
 		  cells{static_cast<size_t>(width),
-				std::vector<char>(static_cast<size_t>(height))},
+			  std::vector<char>(static_cast<size_t>(height))},
 		  tmp{cells}, start((width / 2), (height / 2)), tmpReady(false) {}
 	Map(size_t width, size_t height, const Position& s)
 		: width{width}, height{height}, start(s), tmpReady(false) {}

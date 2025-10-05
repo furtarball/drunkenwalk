@@ -33,29 +33,28 @@ Renderer::SDLGuard::~SDLGuard() {
 }
 
 Renderer::Renderer(const Config& config, const Position& player_pos)
-	: cfg{config},
-	  window{SDL_CreateWindow("Drunken Walk", SDL_WINDOWPOS_UNDEFINED,
-							  SDL_WINDOWPOS_UNDEFINED, cfg.window_w,
-							  cfg.window_h, SDL_WINDOW_RESIZABLE)},
+	: cfg{config}, window{SDL_CreateWindow("Drunken Walk",
+					   SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+					   cfg.window_w, cfg.window_h, SDL_WINDOW_RESIZABLE)},
 	  renderer{SDL_CreateRenderer(
 		  window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)},
-	  mapLayer{SDL_CreateTexture(
-		  renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		  cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
-	  entityLayer{SDL_CreateTexture(
-		  renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		  cfg.map_w * cfg.tile_w, cfg.map_h * cfg.tile_h)},
+	  mapLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
+		  cfg.map_h * cfg.tile_h)},
+	  entityLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
+		  cfg.map_h * cfg.tile_h)},
 	  environment{
 		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
 	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
 	  player_spritesheet{IMG_LoadTexture(
 		  renderer, cfg.asset_path(cfg.player_spritesheet).c_str())},
 	  fonts{TTF_OpenFont(cfg.asset_path(cfg.font_regular_file).c_str(),
-						 cfg.font_regular_size),
-			TTF_OpenFont(cfg.asset_path(cfg.font_medium_file).c_str(),
-						 cfg.font_medium_size),
-			TTF_OpenFont(cfg.asset_path(cfg.font_big_file).c_str(),
-						 cfg.font_big_size)},
+				cfg.font_regular_size),
+		  TTF_OpenFont(cfg.asset_path(cfg.font_medium_file).c_str(),
+			  cfg.font_medium_size),
+		  TTF_OpenFont(
+			  cfg.asset_path(cfg.font_big_file).c_str(), cfg.font_big_size)},
 	  fps{60}, fade{&Animation::square, 255, 0, fps.fps},
 	  camera{cfg, mvmtX, mvmtY, player_pos} {
 	SDL_SetTextureBlendMode(mapLayer, SDL_BLENDMODE_BLEND);
@@ -77,7 +76,7 @@ void Renderer::renderMapLayer(Map& map) {
 	SDL_Rect dst{src};
 	for (int i = 0; i < cfg.map_h; i++) {
 		for (int j = 0; j < cfg.map_w; j++) {
-			if(map[j][i] > 0) {
+			if (map[j][i] > 0) {
 				src.x = (map[j][i] - 1) * cfg.tile_w;
 				SDL_RenderCopy(renderer, environment, &src, &dst);
 			}
@@ -107,7 +106,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 
 			SDL_Rect offset{s.x, (s.curr_frame) * s.h, s.w, s.h};
 			SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.w / 2),
-						 (y * cfg.tile_h) - (s.h - cfg.tile_h), s.w, s.h};
+				(y * cfg.tile_h) - (s.h - cfg.tile_h), s.w, s.h};
 			if (i == *(earr.player())) {
 				pos.x += mvmtX();
 				pos.y += mvmtY();
@@ -122,15 +121,15 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 	SDL_SetRenderTarget(renderer, NULL);
 }
 
-void Renderer::prepareAll(Map& map, EntitiesArray& earr,
-						  std::shared_ptr<Player> player, Seed& seed) {
+void Renderer::prepareAll(
+	Map& map, EntitiesArray& earr, std::shared_ptr<Player> player, Seed& seed) {
 	renderMapLayer(map);
 	drawEntities(earr);
 	camera.followPlayer();
 	SDL_Rect targetRect{.x{(cfg.window_w - (camera.sdl().w * cfg.scale)) / 2},
-						.y{(cfg.window_h - (camera.sdl().h * cfg.scale)) / 2},
-						.w{camera.sdl().w * cfg.scale},
-						.h{camera.sdl().h * cfg.scale}};
+		.y{(cfg.window_h - (camera.sdl().h * cfg.scale)) / 2},
+		.w{camera.sdl().w * cfg.scale},
+		.h{camera.sdl().h * cfg.scale}};
 	SDL_RenderCopy(renderer, mapLayer, camera, &targetRect);
 	SDL_RenderCopy(renderer, entityLayer, camera, &targetRect);
 	drawOSD(player, seed);
@@ -182,9 +181,9 @@ void Camera::followPlayer() {
 	rect.h = std::min<int>(cfg.map_h * cfg.tile_h, cfg.window_h / cfg.scale);
 
 	rect.x =
-		((player_pos.getX() * cfg.tile_w) +	 // player's position
-		 (cfg.player_sprite_object.w / 2) -	 // exact middle of player sprite
-		 (cfg.window_w / (cfg.scale * 2))) + // middle of window
+		((player_pos.getX() * cfg.tile_w) +		// player's position
+			(cfg.player_sprite_object.w / 2) -	// exact middle of player sprite
+			(cfg.window_w / (cfg.scale * 2))) + // middle of window
 		mvmtX.currentValue;
 	if (rect.x < 0)
 		rect.x = 0;
@@ -192,9 +191,9 @@ void Camera::followPlayer() {
 		rect.x = (cfg.map_w * cfg.tile_w) - rect.w;
 
 	rect.y =
-		((player_pos.getY() * cfg.tile_h) +	 // player's position
-		 (cfg.player_sprite_object.h / 2) -	 // exact middle of player sprite
-		 (cfg.window_h / (cfg.scale * 2))) + // middle of window
+		((player_pos.getY() * cfg.tile_h) +		// player's position
+			(cfg.player_sprite_object.h / 2) -	// exact middle of player sprite
+			(cfg.window_h / (cfg.scale * 2))) + // middle of window
 		mvmtY.currentValue;
 	if (rect.y < 0)
 		rect.y = 0;

@@ -1,7 +1,7 @@
 #include "include/level.h"
+#include "include/config.h"
 #include "include/entity.h"
 #include "include/mapgen.h"
-#include "include/config.h"
 
 void EntitiesArray::insert(std::shared_ptr<Door> d) {
 	data.insert(door_end(), d);
@@ -22,8 +22,8 @@ void EntitiesArray::insert(std::shared_ptr<Enemy> e) {
 	data.insert(mob_end(), e);
 	mobs++;
 }
-decltype(EntitiesArray::data)::iterator
-EntitiesArray::erase(decltype(EntitiesArray::data)::iterator pos) {
+decltype(EntitiesArray::data)::iterator EntitiesArray::erase(
+	decltype(EntitiesArray::data)::iterator pos) {
 	size_t n = pos - begin();
 	if ((pos >= door0()) && (pos < door_end()))
 		doors--;
@@ -38,7 +38,7 @@ EntitiesArray::erase(decltype(EntitiesArray::data)::iterator pos) {
 }
 
 Level::Level(size_t map_w, size_t map_h, Seed& a, std::shared_ptr<Player>& p,
-			 const Config& cfg)
+	const Config& cfg)
 	: map{map_w, map_h}, seed(a.begin(), a.end()), player(p) {
 	switch (static_cast<MapType>(a[0] % static_cast<unsigned>(MAPTYPES))) {
 	case CAVE_REGULAR:
@@ -82,8 +82,8 @@ bool Level::grab() {
 void Level::fight() {
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
-			Position p(player->position.getX() + j,
-					   player->position.getY() + i);
+			Position p(
+				player->position.getX() + j, player->position.getY() + i);
 			for (auto k = entities.mob0(); k < entities.mob_end(); k++) {
 				if ((*k)->position == p) {
 					std::shared_ptr<Enemy> enemy =

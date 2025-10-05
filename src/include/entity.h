@@ -17,8 +17,8 @@ struct Sprite {
 	Uint64 next = 0;
 	int curr_frame = 0;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Sprite, x, w, h, frames,
-												frame_ms);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
+	Sprite, x, w, h, frames, frame_ms);
 
 class Entity {
 	public:
@@ -63,11 +63,9 @@ class Item : public Entity {
 	} type = INVALID;
 	Item(Position pos, const nlohmann::json& j);
 };
-NLOHMANN_JSON_SERIALIZE_ENUM(Item::Type, {{Item::INVALID, nullptr},
-										  {Item::WEAPON, "Weapon"},
-										  {Item::ARMOR, "Armor"},
-										  {Item::CONSUMABLE, "Consumable"},
-										  {Item::NEUTRAL, "Neutral"}});
+NLOHMANN_JSON_SERIALIZE_ENUM(Item::Type,
+	{{Item::INVALID, nullptr}, {Item::WEAPON, "Weapon"}, {Item::ARMOR, "Armor"},
+		{Item::CONSUMABLE, "Consumable"}, {Item::NEUTRAL, "Neutral"}});
 
 class Player : public Entity {
 	public:

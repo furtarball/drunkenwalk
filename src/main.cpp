@@ -6,12 +6,12 @@
 
 int main() {
 	try {
-		Wrapped<char> path{SDL_GetPrefPath("io.github.furtarball",
-										   "io.github.furtarball.drunkenwalk")};
+		Wrapped<char> path{SDL_GetPrefPath(
+			"io.github.furtarball", "io.github.furtarball.drunkenwalk")};
 		Game game{std::string{path} + "config.json"};
 		game.run();
 	} catch (std::exception& e) {
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Drunken Walk: Error",
-								 e.what(), nullptr);
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR, "Drunken Walk: Error", e.what(), nullptr);
 	}
 }

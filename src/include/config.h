@@ -1,8 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include "entity.h"
-#include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_filesystem.h>
+#include <SDL2/SDL_stdinc.h>
 #include <compiletime.h>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -35,10 +35,10 @@ struct Config {
 			   CompileTime::assets_dir + '/' + file;
 	}
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
-	Config, window_w, window_h, environment, environment_background, entities,
-	enemy_types, item_types, tile_w, tile_h, scale, font_regular_file,
-	font_medium_file, font_big_file, font_regular_size, font_medium_size,
-	font_big_size, player_spritesheet, player_sprite_object);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Config, window_w, window_h,
+	environment, environment_background, entities, enemy_types, item_types,
+	tile_w, tile_h, scale, font_regular_file, font_medium_file, font_big_file,
+	font_regular_size, font_medium_size, font_big_size, player_spritesheet,
+	player_sprite_object);
 
 #endif

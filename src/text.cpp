@@ -33,8 +33,8 @@ void alignment(SDL_Rect& dim, char v, char h) {
 	}
 }
 } // anonymous namespace
-Wrapped<SDL_Texture> Renderer::textTexture(const std::string& t, Font f,
-										   SDL_Rect& dim) {
+Wrapped<SDL_Texture> Renderer::textTexture(
+	const std::string& t, Font f, SDL_Rect& dim) {
 	Wrapped<SDL_Surface> ts{TTF_RenderUTF8_Solid_Wrapped(
 		fonts[f], t.c_str(), {255, 255, 255, 0}, 0)};
 	dim.w = ts->w;
@@ -42,8 +42,8 @@ Wrapped<SDL_Texture> Renderer::textTexture(const std::string& t, Font f,
 	return SDL_CreateTextureFromSurface(renderer, ts);
 }
 
-void Renderer::print(const std::string& t, Font f, SDL_Rect& dst, char vAlign,
-					 char hAlign) {
+void Renderer::print(
+	const std::string& t, Font f, SDL_Rect& dst, char vAlign, char hAlign) {
 	Wrapped<SDL_Texture> tt = textTexture(t, f, dst);
 	alignment(dst, vAlign, hAlign);
 	SDL_RenderCopy(renderer, tt, NULL, &dst);

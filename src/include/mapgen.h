@@ -20,8 +20,8 @@ class MapGenerator {
 	MapGenerator(std::seed_seq& s, Map& m, EntitiesArray& e)
 		: rng(s), map(m), entities(e) {}
 	virtual void generateMap() = 0;
-	virtual void populate(const nlohmann::json& itemTypes,
-						  const nlohmann::json& enemyTypes) = 0;
+	virtual void populate(
+		const nlohmann::json& itemTypes, const nlohmann::json& enemyTypes) = 0;
 	virtual ~MapGenerator() = default;
 };
 
@@ -30,8 +30,8 @@ class TargetedDrunkenWalk : public MapGenerator {
 	TargetedDrunkenWalk(std::seed_seq& s, Map& m, EntitiesArray& e)
 		: MapGenerator(s, m, e) {}
 	void generateMap();
-	void populate(const nlohmann::json& itemTypes,
-				  const nlohmann::json& enemyTypes);
+	void populate(
+		const nlohmann::json& itemTypes, const nlohmann::json& enemyTypes);
 	Position randomDoorPos();
 	void placeDoors();
 	std::array<double, 4> distribution(Position&, Position&);
@@ -46,8 +46,8 @@ class DrunkenWalk : public MapGenerator {
 	DrunkenWalk(std::seed_seq& s, Map& m, EntitiesArray& e)
 		: MapGenerator(s, m, e) {}
 	void generateMap();
-	void populate(const nlohmann::json& itemTypes,
-				  const nlohmann::json& enemyTypes);
+	void populate(
+		const nlohmann::json& itemTypes, const nlohmann::json& enemyTypes);
 	void drunkenWalk();
 };
 

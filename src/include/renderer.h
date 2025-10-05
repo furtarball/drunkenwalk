@@ -69,7 +69,7 @@ class Camera {
 	bool visible(Position p);
 	void followPlayer();
 	Camera(const Config& config, const Animation& mvmtX, const Animation& mvmtY,
-		   const Position& player_pos)
+		const Position& player_pos)
 		: cfg{config}, player_pos{player_pos}, mvmtX{mvmtX}, mvmtY{mvmtY} {}
 };
 
@@ -116,8 +116,8 @@ class Renderer {
 	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities,
 		player_spritesheet;
 	std::array<Wrapped<TTF_Font>, 3> fonts;
-	Wrapped<SDL_Texture> textTexture(const std::string& t, Font f,
-									 SDL_Rect& dim);
+	Wrapped<SDL_Texture> textTexture(
+		const std::string& t, Font f, SDL_Rect& dim);
 
 	public:
 	FrameRate fps;
@@ -129,7 +129,7 @@ class Renderer {
 	void print(const std::string&, Font, SDL_Rect&, char, char);
 	void drawOSD(std::shared_ptr<Player>, std::array<unsigned, 2>&);
 	void prepareAll(Map&, EntitiesArray&, std::shared_ptr<Player>,
-					std::array<unsigned, 2>&);
+		std::array<unsigned, 2>&);
 	void applyFade();
 	void present() { SDL_RenderPresent(renderer); }
 	void clear();

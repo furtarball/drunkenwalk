@@ -40,7 +40,7 @@ bool Game::move_up() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, config.tile_h, 0,
-								   round(renderer.fps.fps / 4.0)};
+			round(renderer.fps.fps / 4.0)};
 		return true;
 	}
 	return false;
@@ -52,7 +52,7 @@ bool Game::move_down() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, -config.tile_h, 0,
-								   round(renderer.fps.fps / 4.0)};
+			round(renderer.fps.fps / 4.0)};
 		return true;
 	}
 	return false;
@@ -64,7 +64,7 @@ bool Game::move_left() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, config.tile_w, 0,
-								   round(renderer.fps.fps / 6.0)};
+			round(renderer.fps.fps / 6.0)};
 		return true;
 	}
 	return false;
@@ -76,7 +76,7 @@ bool Game::move_right() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, -config.tile_w, 0,
-								   round(renderer.fps.fps / 6.0)};
+			round(renderer.fps.fps / 6.0)};
 		return true;
 	}
 	return false;
@@ -85,7 +85,7 @@ bool Game::move_right() {
 bool Game::handle_movement(const Uint8* kbd) {
 	bool moved = false;
 	if (!(renderer.mvmtY ||
-		  renderer.mvmtX)) { // if the character isn't already moving
+			renderer.mvmtX)) { // if the character isn't already moving
 		if (kbd[SDL_SCANCODE_UP] || kbd[SDL_SCANCODE_W])
 			moved = move_up();
 		else if (kbd[SDL_SCANCODE_DOWN] || kbd[SDL_SCANCODE_S])
@@ -101,8 +101,8 @@ bool Game::handle_movement(const Uint8* kbd) {
 void Game::death() {
 	SDL_Event e;
 	do {
-		SDL_GetWindowSize(renderer.window, &(config.window_w),
-						  &(config.window_h));
+		SDL_GetWindowSize(
+			renderer.window, &(config.window_w), &(config.window_h));
 		renderer.clear();
 		SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
 		renderer.print("DEAD", Renderer::BOLD64, dst, 'c', 'c');
@@ -116,8 +116,8 @@ void Game::inventory() {
 	size_t choice = 0;
 	do {
 		SDL_WaitEvent(&e);
-		SDL_GetWindowSize(renderer.window, &(config.window_w),
-						  &(config.window_h));
+		SDL_GetWindowSize(
+			renderer.window, &(config.window_w), &(config.window_h));
 		renderer.clear();
 		{
 			stringstream text;
@@ -183,8 +183,8 @@ int Game::lvl() {
 	SDL_Event e;
 	if (level)
 		level->seed.generate(seed.begin(), seed.begin() + 1);
-	level = std::make_unique<Level>(config.map_w, config.map_h, seed, player,
-									config);
+	level = std::make_unique<Level>(
+		config.map_w, config.map_h, seed, player, config);
 	renderer.camera.followPlayer();
 	renderer.fade = Animation(&Animation::log, 255, 0, renderer.fps.fps / 2);
 	bool door = false;
@@ -220,8 +220,8 @@ int Game::lvl() {
 		}
 		bool moved{handle_movement(SDL_GetKeyboardState(NULL))};
 		renderer.fps();
-		SDL_GetWindowSize(renderer.window, &(config.window_w),
-						  &(config.window_h));
+		SDL_GetWindowSize(
+			renderer.window, &(config.window_w), &(config.window_h));
 		renderer.prepareAll(level->map, level->entities, player, seed);
 		renderer.applyFade();
 		renderer.present();
@@ -229,14 +229,14 @@ int Game::lvl() {
 		if (moved) {
 			if (!door) {
 				for (auto i = level->entities.door0();
-					 i < level->entities.door_end(); i++) {
+					i < level->entities.door_end(); i++) {
 					if (player->position == (*i)->position) {
 						shared_ptr<Door> doorPtr =
 							dynamic_pointer_cast<Door>(*i);
 						seed[1] = doorPtr->id;
 						door = true;
-						renderer.fade = Animation(&Animation::linear, 0, 255,
-												  renderer.fps.fps / 2);
+						renderer.fade = Animation(
+							&Animation::linear, 0, 255, renderer.fps.fps / 2);
 						break;
 					}
 				}
