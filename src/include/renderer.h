@@ -113,7 +113,7 @@ class Renderer {
 
 	private:
 	Wrapped<SDL_Renderer> renderer;
-	Wrapped<SDL_Texture> mapLayer, entityLayer, environment, entities,
+	Wrapped<SDL_Texture> mapLayer, entityLayer, osdLayer, environment, entities,
 		player_spritesheet;
 	std::array<Wrapped<TTF_Font>, 3> fonts;
 	Wrapped<SDL_Texture> textTexture(

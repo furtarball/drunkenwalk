@@ -44,6 +44,9 @@ Renderer::Renderer(const Config& config, const Position& player_pos)
 	  entityLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
 		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
 		  cfg.map_h * cfg.tile_h)},
+	  osdLayer{SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+		  SDL_TEXTUREACCESS_TARGET, cfg.map_w * cfg.tile_w,
+		  cfg.map_h * cfg.tile_h)},
 	  environment{
 		  IMG_LoadTexture(renderer, cfg.asset_path(cfg.environment).c_str())},
 	  entities{IMG_LoadTexture(renderer, cfg.asset_path(cfg.entities).c_str())},
@@ -59,6 +62,7 @@ Renderer::Renderer(const Config& config, const Position& player_pos)
 	  camera{cfg, mvmtX, mvmtY, player_pos} {
 	SDL_SetTextureBlendMode(mapLayer, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(entityLayer, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(osdLayer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 }
 
@@ -89,6 +93,9 @@ void Renderer::renderMapLayer(Map& map) {
 }
 
 void Renderer::drawEntities(EntitiesArray& earr) {
+	SDL_SetRenderTarget(renderer, osdLayer);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
 	SDL_SetRenderTarget(renderer, entityLayer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
@@ -118,9 +125,12 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			SDL_RenderCopy(renderer, player_spritesheet, &offset, &pos);
 		} else if ((i >= earr.mob0()) && (i < earr.mob_end())) {
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
+			SDL_SetRenderTarget(renderer, osdLayer);
 			pos.x += s.w / 2;
-			print("----", REGULAR16, pos, 'b', 'c');
-			/* Create an all new OSD layer */
+			Enemy& e{dynamic_cast<Enemy&>(**i)};
+			float percentage = e.hp / static_cast<float>(e.maxhp);
+			print(std::to_string(percentage), REGULAR16, pos, 'b', 'c');
+			SDL_SetRenderTarget(renderer, entityLayer);
 		} else
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
 	}
@@ -138,6 +148,7 @@ void Renderer::prepareAll(
 		.h{camera.sdl().h * cfg.scale}};
 	SDL_RenderCopy(renderer, mapLayer, camera, &targetRect);
 	SDL_RenderCopy(renderer, entityLayer, camera, &targetRect);
+	SDL_RenderCopy(renderer, osdLayer, camera, &targetRect);
 	drawOSD(player, seed);
 }
 
