@@ -109,6 +109,7 @@ class Renderer {
 
 	public:
 	enum Font { REGULAR16, REGULAR32, BOLD64, FONTS };
+	enum Align { TOP, LEFT, CENTER, RIGHT, BOTTOM };
 	Wrapped<SDL_Window> window;
 
 	private:
@@ -126,7 +127,8 @@ class Renderer {
 	Renderer(const Config& config, const Position& player_pos);
 	void renderMapLayer(Map&);
 	void drawEntities(EntitiesArray&);
-	void print(const std::string&, Font, SDL_Rect&, char, char);
+	void alignment(SDL_Rect&, Align, Align);
+	void print(const std::string&, Font, SDL_Rect&, Align, Align);
 	void drawOSD(std::shared_ptr<Player>, std::array<unsigned, 2>&);
 	void prepareAll(Map&, EntitiesArray&, std::shared_ptr<Player>,
 		std::array<unsigned, 2>&);
