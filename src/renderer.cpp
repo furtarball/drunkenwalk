@@ -135,7 +135,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			float percentage = e.hp / static_cast<float>(e.maxhp);
             pos.w *= percentage;
             alignment(pos, BOTTOM, LEFT);
-            SDL_SetRenderDrawColor(renderer, 0x00, 0xb3, 0x00, 0xff);
+            SDL_SetRenderDrawColor(renderer, (-0xb3) * (percentage - 1), 0xb3 * percentage, 0x00, 0xff);
             SDL_RenderFillRect(renderer, &pos);
 			SDL_SetRenderTarget(renderer, entityLayer);
 		} else
