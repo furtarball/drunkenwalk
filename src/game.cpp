@@ -105,7 +105,8 @@ void Game::death() {
 			renderer.window, &(config.window_w), &(config.window_h));
 		renderer.clear();
 		SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
-		renderer.print("DEAD", Renderer::BOLD64, dst, 'c', 'c');
+		renderer.print(
+			"DEAD", Renderer::BOLD64, dst, Renderer::CENTER, Renderer::CENTER);
 		renderer.present();
 		SDL_WaitEvent(&e);
 	} while (e.type != SDL_QUIT);
@@ -125,7 +126,8 @@ void Game::inventory() {
 			text << "Attack: " << player->attack << endl;
 			text << "Defense: " << player->defense << endl << endl;
 			SDL_Rect dst = {0, 0, 0, 0};
-			renderer.print(text.str(), Renderer::REGULAR16, dst, 't', 'l');
+			renderer.print(text.str(), Renderer::REGULAR16, dst, Renderer::TOP,
+				Renderer::LEFT);
 		}
 		if (e.key.type == SDL_KEYDOWN) {
 			switch (e.key.keysym.scancode) {
@@ -169,7 +171,8 @@ void Game::inventory() {
 				text << player->bag[i]->name << endl;
 			}
 			SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
-			renderer.print(text.str(), Renderer::REGULAR16, dst, 'c', 'c');
+			renderer.print(text.str(), Renderer::REGULAR16, dst,
+				Renderer::CENTER, Renderer::CENTER);
 		}
 		renderer.present();
 	} while (!((e.key.type == SDL_KEYDOWN) &&

@@ -128,11 +128,15 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			SDL_SetRenderTarget(renderer, osdLayer);
 			// multiply by scale since the OSD layer is in native resolution
 			pos.x *= cfg.scale;
-			pos.x += s.w * cfg.scale / 2;
 			pos.y *= cfg.scale;
 			Enemy& e{dynamic_cast<Enemy&>(**i)};
+            pos.w *= cfg.scale;
+            pos.h = cfg.scale * cfg.tile_h * 0.1;
 			float percentage = e.hp / static_cast<float>(e.maxhp);
-			print(std::to_string(percentage), REGULAR16, pos, 'b', 'c');
+            pos.w *= percentage;
+            alignment(pos, BOTTOM, LEFT);
+            SDL_SetRenderDrawColor(renderer, 0x00, 0xb3, 0x00, 0xff);
+            SDL_RenderFillRect(renderer, &pos);
 			SDL_SetRenderTarget(renderer, entityLayer);
 		} else
 			SDL_RenderCopy(renderer, entities, &offset, &pos);

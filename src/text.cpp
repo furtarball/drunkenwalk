@@ -5,17 +5,12 @@
 #include <memory>
 #include <sstream>
 
-namespace {
-// vertical alignment options (the point given in dim will become the...):
-// b: bottom, c: center, t: top
-// horizontal alignment options (the point will be the...):
-// l: left, c: center, r: right
-void alignment(SDL_Rect& dim, char v, char h) {
+void Renderer::alignment(SDL_Rect& dim, Align v, Align h) {
 	switch (v) {
-	case 'b':
+	case BOTTOM:
 		dim.y -= dim.h;
 		break;
-	case 'c':
+	case CENTER:
 		dim.y -= dim.h / 2;
 		break;
 	default:
@@ -24,15 +19,15 @@ void alignment(SDL_Rect& dim, char v, char h) {
 	switch (h) {
 	default:
 		break;
-	case 'c':
+	case CENTER:
 		dim.x -= dim.w / 2;
 		break;
-	case 'r':
+	case RIGHT:
 		dim.x -= dim.w;
 		break;
 	}
 }
-} // anonymous namespace
+
 Wrapped<SDL_Texture> Renderer::textTexture(
 	const std::string& t, Font f, SDL_Rect& dim) {
 	Wrapped<SDL_Surface> ts{TTF_RenderUTF8_Solid_Wrapped(
@@ -43,9 +38,9 @@ Wrapped<SDL_Texture> Renderer::textTexture(
 }
 
 void Renderer::print(
-	const std::string& t, Font f, SDL_Rect& dst, char vAlign, char hAlign) {
+	const std::string& t, Font f, SDL_Rect& dst, Align v, Align h) {
 	Wrapped<SDL_Texture> tt = textTexture(t, f, dst);
-	alignment(dst, vAlign, hAlign);
+	alignment(dst, v, h);
 	SDL_RenderCopy(renderer, tt, NULL, &dst);
 }
 
@@ -58,5 +53,5 @@ void Renderer::drawOSD(std::shared_ptr<Player> player, Seed& seed) {
 		 << "}\n\n";
 	text << "HP: " << player->hp << '/' << player->maxhp << std::endl;
 	SDL_Rect dst = {0, 0, 0, 0};
-	print(text.str(), REGULAR16, dst, 't', 'l');
+	print(text.str(), REGULAR16, dst, TOP, LEFT);
 }
