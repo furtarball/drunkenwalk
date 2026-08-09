@@ -18,5 +18,3 @@ configure_file(input : 'compiletime.h.in', output : 'compiletime.h',
 	configuration : {
 		'assetsdir': assetsdir # relative to prefix
 	})
-
-appimage_target = custom_target('appimage', command : [ './appimage.sh' ], output : 'dw.AppImage')
