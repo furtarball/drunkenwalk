@@ -6,12 +6,13 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
-  ARTFNAME: &artfname Drunken_Walk-x86_64.AppImage
 
 jobs:
   build:
     # old distro = old glibc = AppImage will run on most Linux PC's
     runs-on: ubuntu-24.04
+    outputs:
+      ARTFNAME: ${{ steps.hash.outputs.ARTFNAME }}
     steps:
     - name: Install tools and depedencies
       run: |
@@ -34,10 +35,17 @@ jobs:
         chmod +x linuxdeploy-plugin-appimage-x86_64.AppImage
     - name: Build AppImage
       run: ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
+    - name: Add commit hash to artifact name
+      id: hash
+      run: |
+        SHA_SHORT=$(git rev-parse --short=8 HEAD)
+        ARTFNAME=Drunken_Walk-$SHA_SHORT-x86_64.AppImage
+        echo "ARTFNAME=$ARTFNAME" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+        mv Drunken_Walk-x86_64.AppImage $ARTFNAME
     - name: Upload artifact
       uses: actions/upload-artifact@v7
       with:
-        path: *artfname
+        path: ${{ env.ARTFNAME }}
         archive: "false"
         if-no-files-found: error
   release:
@@ -50,6 +58,7 @@ jobs:
     - name: Create release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ARTFNAME: ${{ needs.build.outputs.ARTFNAME }}
       run: |
         wget -q https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
         chmod +x pyuploadtool-x86_64.AppImage
