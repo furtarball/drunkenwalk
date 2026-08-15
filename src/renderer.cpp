@@ -92,13 +92,29 @@ void Renderer::renderMapLayer(Map& map) {
 	SDL_SetRenderTarget(renderer, NULL);
 }
 
+namespace {
+SDL_Color hp_bar_color(float percentage) {
+	// progress from RGBA (intensity, 0, 0, ff) to (0, intensity, 0, ff)
+	constexpr Uint8 intensity = 0xb3;
+	return {static_cast<Uint8>(-intensity * (percentage - 1)),
+		static_cast<Uint8>(intensity * percentage), 0x00, 0xff};
+}
+} // namespace
+
+void Renderer::drawHpBar(SDL_Rect& pos, int hp, int maxhp) {
+	auto percentage = hp / static_cast<float>(maxhp);
+	pos.w *= percentage;
+	alignment(pos, BOTTOM, LEFT);
+	auto color = hp_bar_color(percentage);
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderFillRect(renderer, &pos);
+}
+
 void Renderer::drawEntities(EntitiesArray& earr) {
 	SDL_SetRenderTarget(renderer, osdLayer);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-	SDL_RenderClear(renderer);
+	clear();
 	SDL_SetRenderTarget(renderer, entityLayer);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-	SDL_RenderClear(renderer);
+	clear();
 	auto& bg = cfg.environment_background;
 	SDL_SetRenderDrawColor(renderer, bg[0], bg[1], bg[2], bg[3]);
 	for (auto i = earr.begin(); i < earr.end(); i++) {
@@ -107,11 +123,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 		if (!(camera.visible(e->position)))
 			continue;
 		auto& s = e->sprite;
-		if ((s.frames > 1) && (fps.ticks >= s.next)) {
-			auto advance{(fps.ticks - s.next) / s.frame_ms};
-			s.curr_frame = (s.curr_frame + advance + 1) % s.frames;
-			s.next = fps.ticks + s.frame_ms;
-		}
+		s.progress_frames(fps.ticks);
 
 		SDL_Rect offset{s.x, (s.curr_frame) * s.h, s.w, s.h};
 		SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.w / 2),
@@ -119,9 +131,8 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 		if (i == earr.player()) {
 			pos.x += mvmtX();
 			pos.y += mvmtY();
-			if ((!mvmtX) && (!mvmtY) &&
-				((s.curr_frame == 0) || (s.curr_frame == 2)))
-				s.frames = 1;
+			if ((!mvmtX) && (!mvmtY) && (s.curr_frame % 2 == 0))
+				s.anim_stop();
 			SDL_RenderCopy(renderer, player_spritesheet, &offset, &pos);
 		} else if ((i >= earr.mob0()) && (i < earr.mob_end())) {
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
@@ -129,14 +140,10 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 			// multiply by scale since the OSD layer is in native resolution
 			pos.x *= cfg.scale;
 			pos.y *= cfg.scale;
+			pos.w *= cfg.scale;
+			pos.h = cfg.scale * cfg.tile_h * 0.1;
 			Enemy& e{dynamic_cast<Enemy&>(**i)};
-            pos.w *= cfg.scale;
-            pos.h = cfg.scale * cfg.tile_h * 0.1;
-			float percentage = e.hp / static_cast<float>(e.maxhp);
-            pos.w *= percentage;
-            alignment(pos, BOTTOM, LEFT);
-            SDL_SetRenderDrawColor(renderer, (-0xb3) * (percentage - 1), 0xb3 * percentage, 0x00, 0xff);
-            SDL_RenderFillRect(renderer, &pos);
+			drawHpBar(pos, e.hp, e.maxhp);
 			SDL_SetRenderTarget(renderer, entityLayer);
 		} else
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
@@ -149,19 +156,18 @@ void Renderer::prepareAll(
 	renderMapLayer(map);
 	drawEntities(earr);
 	camera.followPlayer();
-	SDL_Rect targetRect{.x{(cfg.window_w - (camera.sdl().w * cfg.scale)) / 2},
-		.y{(cfg.window_h - (camera.sdl().h * cfg.scale)) / 2},
-		.w{camera.sdl().w * cfg.scale},
-		.h{camera.sdl().h * cfg.scale}};
+	SDL_Rect targetRect{
+		.x{(cfg.window_w - static_cast<int>(camera.sdl().w * cfg.scale)) / 2},
+		.y{(cfg.window_h - static_cast<int>(camera.sdl().h * cfg.scale)) / 2},
+		.w{static_cast<int>(camera.sdl().w * cfg.scale)},
+		.h{static_cast<int>(camera.sdl().h * cfg.scale)}};
 	SDL_RenderCopy(renderer, mapLayer, camera, &targetRect);
 	SDL_RenderCopy(renderer, entityLayer, camera, &targetRect);
 	// multiply by scale since the OSD layer is in native resolution
-	SDL_Rect camera_big{
-		.x{camera.sdl().x * cfg.scale},
-		.y{camera.sdl().y * cfg.scale},
-		.w{camera.sdl().w * cfg.scale},
-		.h{camera.sdl().h * cfg.scale}
-	};
+	SDL_Rect camera_big{.x{static_cast<int>(camera.sdl().x * cfg.scale)},
+		.y{static_cast<int>(camera.sdl().y * cfg.scale)},
+		.w{static_cast<int>(camera.sdl().w * cfg.scale)},
+		.h{static_cast<int>(camera.sdl().h * cfg.scale)}};
 	SDL_RenderCopy(renderer, osdLayer, &camera_big, &targetRect);
 	drawOSD(player, seed);
 }

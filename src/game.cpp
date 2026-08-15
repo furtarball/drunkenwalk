@@ -35,8 +35,8 @@ void Game::run() {
 
 bool Game::move_up() {
 	Position newPos = player->position.up(level->map);
-	player->sprite.x = 0;
-	player->sprite.frames = 4;
+	player->sprite.anim_up();
+	player->sprite.anim_start();
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, config.tile_h, 0,
@@ -47,8 +47,8 @@ bool Game::move_up() {
 }
 bool Game::move_down() {
 	Position newPos = player->position.down(level->map);
-	player->sprite.x = 16;
-	player->sprite.frames = 4;
+	player->sprite.anim_down();
+	player->sprite.anim_start();
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, -config.tile_h, 0,
@@ -59,8 +59,8 @@ bool Game::move_down() {
 }
 bool Game::move_left() {
 	Position newPos = player->position.left(level->map);
-	player->sprite.x = 32;
-	player->sprite.frames = 4;
+	player->sprite.anim_left();
+	player->sprite.anim_start();
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, config.tile_w, 0,
@@ -71,8 +71,8 @@ bool Game::move_left() {
 }
 bool Game::move_right() {
 	Position newPos = player->position.right(level->map);
-	player->sprite.x = 48;
-	player->sprite.frames = 4;
+	player->sprite.anim_right();
+	player->sprite.anim_start();
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, -config.tile_w, 0,
