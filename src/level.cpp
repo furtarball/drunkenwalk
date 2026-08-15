@@ -88,7 +88,7 @@ void Level::fight() {
 				if ((*k)->position == p) {
 					std::shared_ptr<Enemy> enemy =
 						std::dynamic_pointer_cast<Enemy>(*k);
-					unsigned damage =
+					int damage =
 						std::lround((player->attack * 100.0) /
 									static_cast<double>(enemy->defense + 100));
 					if (enemy->hp > damage)
