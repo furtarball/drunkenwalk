@@ -94,7 +94,8 @@ class Renderer {
 
 	public:
 	enum Font { REGULAR16, REGULAR32, BOLD64, FONTS };
-	enum Align { TOP, LEFT, CENTER, RIGHT, BOTTOM };
+	enum AlignV { TOP, CENTERV, BOTTOM };
+	enum AlignH { LEFT, CENTERH, RIGHT };
 	Wrapped<SDL_Window> window;
 
 	private:
@@ -112,15 +113,16 @@ class Renderer {
 	Renderer(const Config& config, const Position& player_pos);
 	void renderMapLayer(Map&);
 	void drawEntities(EntitiesArray&);
-	void alignment(SDL_Rect&, Align, Align);
-	void print(const std::string&, Font, SDL_Rect&, Align, Align);
+	void alignment(SDL_Rect&, AlignV, AlignH);
+	void print(const std::string&, Font, SDL_Rect&, AlignV, AlignH);
 	void drawOSD(std::shared_ptr<Player>, std::array<unsigned, 2>&);
 	void prepareAll(Map&, EntitiesArray&, std::shared_ptr<Player>,
 		std::array<unsigned, 2>&);
 	void applyFade();
 	void present() { SDL_RenderPresent(renderer); }
 	void clear();
-	void drawHpBar(SDL_Rect& pos, int hp, int maxhp);
+	void drawHpBar(SDL_Rect pos, int hp, int maxhp);
+	void drawMobName(SDL_Rect pos, const std::string& name);
 };
 
 #endif

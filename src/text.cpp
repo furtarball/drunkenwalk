@@ -5,12 +5,12 @@
 #include <memory>
 #include <sstream>
 
-void Renderer::alignment(SDL_Rect& dim, Align v, Align h) {
+void Renderer::alignment(SDL_Rect& dim, AlignV v, AlignH h) {
 	switch (v) {
 	case BOTTOM:
 		dim.y -= dim.h;
 		break;
-	case CENTER:
+	case CENTERV:
 		dim.y -= dim.h / 2;
 		break;
 	default:
@@ -19,7 +19,7 @@ void Renderer::alignment(SDL_Rect& dim, Align v, Align h) {
 	switch (h) {
 	default:
 		break;
-	case CENTER:
+	case CENTERH:
 		dim.x -= dim.w / 2;
 		break;
 	case RIGHT:
@@ -38,7 +38,7 @@ Wrapped<SDL_Texture> Renderer::textTexture(
 }
 
 void Renderer::print(
-	const std::string& t, Font f, SDL_Rect& dst, Align v, Align h) {
+	const std::string& t, Font f, SDL_Rect& dst, AlignV v, AlignH h) {
 	Wrapped<SDL_Texture> tt = textTexture(t, f, dst);
 	alignment(dst, v, h);
 	SDL_RenderCopy(renderer, tt, NULL, &dst);
