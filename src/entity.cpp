@@ -4,6 +4,16 @@
 
 unsigned Door::count = 0;
 
+void Sprite::progress_frames(const FrameRate& fps) {
+	if (frames <= 1)
+		return;
+	if (fps.ticks < next)
+		return;
+	auto advance{(fps.ticks - next) / frame_ms};
+	curr_frame = (curr_frame + advance + 1) % frames;
+	next = fps.ticks + frame_ms;
+}
+
 Enemy::Enemy(Position pos, const nlohmann::json& j)
 	: Entity{pos, true, {j.at("Sprite").template get<Sprite>()}} {
 	j.at("Name").get_to(name);

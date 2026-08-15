@@ -2,6 +2,7 @@
 #define RENDERER_H
 #include "config.h"
 #include "entity.h"
+#include "framerate.h"
 #include "level.h"
 #include "map.h"
 #include <SDL2/SDL.h>
@@ -38,22 +39,6 @@ class Animation {
 		  funcType(f) {}
 	unsigned operator()();
 	operator bool() { return static_cast<bool>(funcType); }
-};
-
-struct FrameRate {
-	unsigned fps;
-	Uint64 ticks;
-	bool skip;
-	FrameRate(unsigned f) : fps(f), skip(false) {}
-	void updateTicks() { ticks = SDL_GetTicks64(); }
-	void measure();
-	void set_skip() { // skip one measurement
-		skip = true;
-	}
-	void operator()() {
-		updateTicks();
-		measure();
-	}
 };
 
 class Camera {
@@ -135,6 +120,7 @@ class Renderer {
 	void applyFade();
 	void present() { SDL_RenderPresent(renderer); }
 	void clear();
+	void drawHpBar(SDL_Rect& pos, int hp, int maxhp);
 };
 
 #endif
