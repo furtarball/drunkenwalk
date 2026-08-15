@@ -40,7 +40,7 @@ bool Game::move_up() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, config.tile_h, 0,
-			round(renderer.fps.fps / 4.0)};
+			static_cast<unsigned>(round(renderer.fps.fps / 4.0))};
 		return true;
 	}
 	return false;
@@ -52,7 +52,7 @@ bool Game::move_down() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtY = Animation{&Animation::linear, -config.tile_h, 0,
-			round(renderer.fps.fps / 4.0)};
+			static_cast<unsigned>(round(renderer.fps.fps / 4.0))};
 		return true;
 	}
 	return false;
@@ -64,7 +64,7 @@ bool Game::move_left() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, config.tile_w, 0,
-			round(renderer.fps.fps / 6.0)};
+			static_cast<unsigned>(round(renderer.fps.fps / 6.0))};
 		return true;
 	}
 	return false;
@@ -76,7 +76,7 @@ bool Game::move_right() {
 	if (!level->collision(newPos)) {
 		player->position = newPos;
 		renderer.mvmtX = Animation{&Animation::linear, -config.tile_w, 0,
-			round(renderer.fps.fps / 6.0)};
+			static_cast<unsigned>(round(renderer.fps.fps / 6.0))};
 		return true;
 	}
 	return false;
@@ -106,7 +106,7 @@ void Game::death() {
 		renderer.clear();
 		SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
 		renderer.print(
-			"DEAD", Renderer::BOLD64, dst, Renderer::CENTER, Renderer::CENTER);
+			"DEAD", Renderer::BOLD64, dst, Renderer::CENTERV, Renderer::CENTERH);
 		renderer.present();
 		SDL_WaitEvent(&e);
 	} while (e.type != SDL_QUIT);
@@ -172,7 +172,7 @@ void Game::inventory() {
 			}
 			SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
 			renderer.print(text.str(), Renderer::REGULAR16, dst,
-				Renderer::CENTER, Renderer::CENTER);
+				Renderer::CENTERV, Renderer::CENTERH);
 		}
 		renderer.present();
 	} while (!((e.key.type == SDL_KEYDOWN) &&
