@@ -105,8 +105,8 @@ void Game::death() {
 			renderer.window, &(config.window_w), &(config.window_h));
 		renderer.clear();
 		SDL_Rect dst = {config.window_w / 2, config.window_h / 2, 0, 0};
-		renderer.print(
-			"DEAD", Renderer::BOLD64, dst, Renderer::CENTERV, Renderer::CENTERH);
+		renderer.print("DEAD", Renderer::BOLD64, dst, Renderer::CENTERV,
+			Renderer::CENTERH);
 		renderer.present();
 		SDL_WaitEvent(&e);
 	} while (e.type != SDL_QUIT);

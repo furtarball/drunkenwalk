@@ -101,13 +101,29 @@ SDL_Color hp_bar_color(float percentage) {
 }
 } // namespace
 
-void Renderer::drawHpBar(SDL_Rect& pos, int hp, int maxhp) {
+void Renderer::drawHpBar(SDL_Rect pos, int hp, int maxhp) {
+	// multiply by scale since the OSD layer is in native resolution
+	pos.x *= cfg.scale;
+	pos.y *= cfg.scale;
+	pos.w *= cfg.scale;
+	pos.h = cfg.scale * cfg.tile_h * 0.1;
 	auto percentage = hp / static_cast<float>(maxhp);
 	pos.w *= percentage;
 	alignment(pos, BOTTOM, LEFT);
 	auto color = hp_bar_color(percentage);
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(renderer, &pos);
+}
+
+void Renderer::drawMobName(SDL_Rect pos, const std::string& name) {
+	// multiply by scale since the OSD layer is in native resolution
+	pos.x *= cfg.scale;
+	pos.x += cfg.tile_w;
+	pos.y *= cfg.scale;
+	if (pos.y >= 2)
+		pos.y -= 2;
+	pos.w *= cfg.scale;
+	print(name, REGULAR16, pos, BOTTOM, CENTERH);
 }
 
 void Renderer::drawEntities(EntitiesArray& earr) {
@@ -137,13 +153,9 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 		} else if ((i >= earr.mob0()) && (i < earr.mob_end())) {
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
 			SDL_SetRenderTarget(renderer, osdLayer);
-			// multiply by scale since the OSD layer is in native resolution
-			pos.x *= cfg.scale;
-			pos.y *= cfg.scale;
-			pos.w *= cfg.scale;
-			pos.h = cfg.scale * cfg.tile_h * 0.1;
 			Enemy& e{dynamic_cast<Enemy&>(**i)};
 			drawHpBar(pos, e.hp, e.maxhp);
+			drawMobName(pos, e.name);
 			SDL_SetRenderTarget(renderer, entityLayer);
 		} else
 			SDL_RenderCopy(renderer, entities, &offset, &pos);
