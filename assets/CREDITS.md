@@ -1,8 +1,7 @@
 # Font credits
-* [Alagard font by Hewett Tsoi](https://www.dafont.com/alagard.font)
 * [Terminus font by Dimitar Zhekov](https://terminus-font.sourceforge.net/)
 * [Terminus TTF by Tilman Blumenbach](https://files.ax86.net/terminus-ttf/)
-* [Gallant TTF by Joshua M. Clulow](https://linux.debian.bugs.rc.narkive.com/xbzGhnBH/bug-1028029-xscreensaver-contains-non-free-fonts#post2)
+* [Tencon font by drj](https://codeberg.org/drj/font-tencon)
 ## Copyright notice for Gallant:
 [(From NetBSD)](https://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/sys/dev/wsfont/gallant12x22.h)
 ```

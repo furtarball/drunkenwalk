@@ -20,7 +20,7 @@ struct Config {
 	int tile_w{16};
 	int tile_h{24};
 	double scale{2.0};
-	std::string font_regular_file{"Terminus.ttf"};
+	std::string font_regular_file{"tencon.ttf"};
 	std::string font_medium_file{"Terminus.ttf"};
 	std::string font_big_file{"Terminus-Bold.ttf"};
 	int font_regular_size{16};
