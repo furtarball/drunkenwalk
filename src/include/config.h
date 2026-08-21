@@ -27,7 +27,7 @@ struct Config {
 	int font_medium_size{32};
 	int font_big_size{64};
 	std::string player_spritesheet{"player.png"};
-	Player::Sprite player_sprite_object{16, 16, 25, 1, 150};
+	Sprite player_sprite_object{16, 16, 25, 1, 150};
 	Config() = default;
 	Config(const std::string& json_path);
 	std::string asset_path(const std::string& file) const {

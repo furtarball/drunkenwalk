@@ -3,19 +3,19 @@
 #include <SDL2/SDL_timer.h>
 
 struct FrameRate {
-    unsigned fps;
-    Uint64 ticks;
-    bool skip;
-    FrameRate(unsigned f) : fps(f), skip(false) {}
-    void updateTicks() { ticks = SDL_GetTicks64(); }
-    void measure();
-    void set_skip() { // skip one measurement
-        skip = true;
-    }
-    void operator()() {
-        updateTicks();
-        measure();
-    }
+	unsigned fps;
+	Uint64 ticks;
+	bool skip;
+	explicit FrameRate(unsigned f) : fps(f), skip(false) {}
+	void updateTicks() { ticks = SDL_GetTicks64(); }
+	void measure();
+	void set_skip() { // skip one measurement
+		skip = true;
+	}
+	void operator()() {
+		updateTicks();
+		measure();
+	}
 };
 
 #endif

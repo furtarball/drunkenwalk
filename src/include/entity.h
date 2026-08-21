@@ -19,6 +19,11 @@ struct Sprite {
 	int curr_frame = 0;
 	void progress_frames(const FrameRate& fps);
 	void anim_stop() { frames = 1; }
+	void anim_start() { frames = 4; /* FIXME */ }
+	void anim_up() { x = 0; }
+	void anim_down() { x = 16; }
+	void anim_left() { x = 32; }
+	void anim_right() { x = 48; }
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
 	Sprite, x, w, h, frames, frame_ms);
@@ -72,14 +77,6 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Item::Type,
 
 class Player : public Entity {
 	public:
-	struct Sprite : public ::Sprite {
-		void anim_start() { frames = 4; }
-		void anim_up() { x = 0; }
-		void anim_down() { x = 16; }
-		void anim_left() { x = 32; }
-		void anim_right() { x = 48; }
-	};
-	Sprite sprite;
 	int attack, defense, maxhp, hp;
 	std::shared_ptr<Item> weapon, armor;
 	std::vector<std::shared_ptr<Item>> bag;

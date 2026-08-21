@@ -139,7 +139,7 @@ void Renderer::drawEntities(EntitiesArray& earr) {
 		if (!(camera.visible(e->position)))
 			continue;
 		auto& s = e->sprite;
-		s.progress_frames(fps.ticks);
+		s.progress_frames(fps);
 
 		SDL_Rect offset{s.x, (s.curr_frame) * s.h, s.w, s.h};
 		SDL_Rect pos{((x * cfg.tile_w) + (cfg.tile_w / 2)) - (s.w / 2),

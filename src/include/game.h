@@ -18,7 +18,6 @@ class Game {
 	std::unique_ptr<Level> level;
 	std::shared_ptr<Player> player;
 	Renderer renderer;
-	void stop_walking();
 	bool move_up();
 	bool move_down();
 	bool move_left();
