@@ -1,7 +1,7 @@
-project('drunkenwalk', 'cpp', default_options : [ 'cpp_std=c++20', 'buildtype=debug', 'warning_level=2' ])
+project('drunkenwalk', 'cpp', default_options : [ 'cpp_std=c++26', 'buildtype=debug', 'warning_level=2' ])
 subdir('src')
 
-sdl_dep =  [ dependency('SDL2'), dependency('SDL2_ttf'), dependency('SDL2_image') ]
+sdl_dep =  [ dependency('sdl2', 'SDL2'), dependency('sdl2_ttf', 'SDL2_ttf'), dependency('sdl2_image', 'SDL2_image') ]
 json_dep = dependency('nlohmann_json')
 executable('drunkenwalk', sources : sources, dependencies : [ sdl_dep, json_dep ], install : true)
 

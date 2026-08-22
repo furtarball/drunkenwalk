@@ -6,6 +6,7 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  PIP_PROGRESS_BAR: "off"
 
 permissions:
   contents: write
@@ -16,18 +17,25 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       ARTFNAME: ${{ steps.hash.outputs.ARTFNAME }}
+    env:
+      CXX: g++-16
     steps:
-    - name: Install tools and depedencies
+    # Install new GCC for compatibility with required C++ standard
+    # (can't use containers because those use latest Debian)
+    - name: Install toolchain
       run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
-        sudo apt-get install meson libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev nlohmann-json3-dev
+        sudo apt-get install $CXX
+        sudo apt-get install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev nlohmann-json3-dev
+        python -m pip install meson --break-system-packages
     - name: Check out
       uses: actions/checkout@v7
     - name: Set up Meson
       run: |
         mkdir builddir
         meson setup builddir
-        meson configure -Dprefix=/usr builddir
+        meson configure -Dprefix=/usr -Dbuildtype=release builddir
     - name: Build
       run: meson install -C builddir --destdir ../AppDir
     - name: Download AppImage tools
