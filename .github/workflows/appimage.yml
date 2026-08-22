@@ -60,12 +60,9 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Create release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ARTFNAME: ${{ needs.build.outputs.ARTFNAME }}
         REPO: ${{ github.repository }}
       run: |
-        wget -q https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
-        chmod +x pyuploadtool-x86_64.AppImage
-        GH_TOKEN="$GITHUB_TOKEN"
-        gh release delete continuous --cleanup-tag --yes -R "$REPO"
-        ./pyuploadtool-x86_64.AppImage "$ARTFNAME"
+        gh release delete continuous --cleanup-tag --yes --repo "$REPO" || true
+        gh release create continuous "$ARTFNAME" --title "Continuous build" --latest --repo "$REPO"
